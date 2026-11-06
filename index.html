@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nivel Nani</title>
+<meta name="theme-color" content="#2B5CE6">
+<meta name="description" content="Cumple hábitos y metas, gana monedas, sube de nivel y canjea premios reales.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Pixelify+Sans:wght@500;600;700&display=swap">
+<style>
+/* Layout: columna de app móvil (máx. 560px): tarjeta de jugadora arriba, vista de la pestaña activa, barra de pestañas fija abajo */
+:root{
+  --bg:#EEF1F8; --surface:#FFFFFF; --surface-2:#F5F7FC; --ink:#161B2E; --muted:#596079; --line:#DCE1EE; --line-strong:#B6BFD6;
+  --accent:#2B5CE6; --accent-soft:#E2E9FD; --on-accent:#FFFFFF;
+  --player-bg:#2B5CE6; --player-ink:#FFFFFF; --player-track:rgba(255,255,255,.24); --player-seg:rgba(10,20,60,.22); --player-dot:rgba(255,255,255,.32);
+  --coin:#F0B12A; --coin-edge:#B47A08; --coin-ink:#7A5200; --coin-soft:#FDF1D6; --coin-btn-ink:#3B2700;
+  --good:#17895C; --good-soft:#DDF3EA; --on-good:#FFFFFF;
+  --danger:#B3261E;
+  --chest:#B5672A; --chest-dark:#7E4316;
+  --a-cuerpo:#C8423D; --a-cuerpo-soft:#FBE4E2;
+  --a-mente:#7347C8; --a-mente-soft:#EEE6FB;
+  --a-descanso:#2A66AA; --a-descanso-soft:#E1ECF8;
+  --a-aprender:#0B7F7B; --a-aprender-soft:#D9F1EF;
+  --a-plata:#367E29; --a-plata-soft:#E2F1DD;
+  --toast-bg:#161B2E; --toast-ink:#FFFFFF;
+  --font-display:"Pixelify Sans", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-body:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1120; --surface:#171B2D; --surface-2:#1F2439; --ink:#E9ECF7; --muted:#9CA3BC; --line:#2A3050; --line-strong:#424B70;
+    --accent:#7C9BFF; --accent-soft:#232C52; --on-accent:#0E1120;
+    --player-bg:#22388A; --player-ink:#F1F4FF; --player-track:rgba(255,255,255,.16); --player-seg:rgba(0,0,0,.28); --player-dot:rgba(255,255,255,.2);
+    --coin:#F5B93A; --coin-edge:#A9720C; --coin-ink:#F7CB6A; --coin-soft:#3A2E12; --coin-btn-ink:#2E1F00;
+    --good:#3CC48B; --good-soft:#123528; --on-good:#0E1120;
+    --danger:#FF8A80;
+    --chest:#D08A4C; --chest-dark:#8E5222;
+    --a-cuerpo:#F08A85; --a-cuerpo-soft:#3B1F21;
+    --a-mente:#B99BF5; --a-mente-soft:#2B2244;
+    --a-descanso:#82AEEA; --a-descanso-soft:#1B2A42;
+    --a-aprender:#53C9C3; --a-aprender-soft:#123533;
+    --a-plata:#86C977; --a-plata-soft:#1C3319;
+    --toast-bg:#E9ECF7; --toast-ink:#0E1120;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1120; --surface:#171B2D; --surface-2:#1F2439; --ink:#E9ECF7; --muted:#9CA3BC; --line:#2A3050; --line-strong:#424B70;
+  --accent:#7C9BFF; --accent-soft:#232C52; --on-accent:#0E1120;
+  --player-bg:#22388A; --player-ink:#F1F4FF; --player-track:rgba(255,255,255,.16); --player-seg:rgba(0,0,0,.28); --player-dot:rgba(255,255,255,.2);
+  --coin:#F5B93A; --coin-edge:#A9720C; --coin-ink:#F7CB6A; --coin-soft:#3A2E12; --coin-btn-ink:#2E1F00;
+  --good:#3CC48B; --good-soft:#123528; --on-good:#0E1120;
+  --danger:#FF8A80;
+  --chest:#D08A4C; --chest-dark:#8E5222;
+  --a-cuerpo:#F08A85; --a-cuerpo-soft:#3B1F21;
+  --a-mente:#B99BF5; --a-mente-soft:#2B2244;
+  --a-descanso:#82AEEA; --a-descanso-soft:#1B2A42;
+  --a-aprender:#53C9C3; --a-aprender-soft:#123533;
+  --a-plata:#86C977; --a-plata-soft:#1C3319;
+  --toast-bg:#E9ECF7; --toast-ink:#0E1120;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:15px; line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:16px calc(96px + env(safe-area-inset-bottom, 0px));
+}
+h1,h2,h3,p{margin:0}
+ul{list-style:none;margin:0;padding:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+.app{max-width:560px;margin:0 auto;display:grid;gap:18px}
+.view{display:grid;gap:14px;min-width:0}
+
+/* Tarjeta de jugadora */
+.player{
+  position:relative; overflow:hidden;
+  background:var(--player-bg); color:var(--player-ink);
+  border-radius:20px; padding:18px; display:grid; gap:16px;
+}
+.player::after{
+  content:""; position:absolute; right:-6px; top:-6px; width:110px; height:110px; pointer-events:none;
+  background-image:radial-gradient(var(--player-dot) 2px, transparent 2.6px); background-size:12px 12px;
+}
+.player-top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.avatar{
+  width:52px;height:52px;flex:none;display:grid;place-items:center;
+  background:var(--player-ink);color:var(--player-bg);border-radius:12px;font-size:30px;font-weight:700;
+  box-shadow:inset 0 -4px 0 var(--player-seg);
+}
+.who{min-width:0}
+.p-name{font-size:21px;font-weight:800;line-height:1.15}
+.p-rank{font-size:16px;opacity:.92}
+.coins{
+  margin-left:auto;display:flex;align-items:center;gap:6px;flex:none;
+  background:var(--coin-soft);color:var(--coin-ink);border-radius:999px;padding:5px 12px 5px 6px;
+  font-size:22px;font-weight:700;
+}
+.coin-ico{width:18px;height:18px;flex:none;display:inline-block;vertical-align:-3px}
+.coin-ico.lg{width:26px;height:26px}
+.coin-ico .c1{fill:var(--coin)}
+.coin-ico .c2{fill:none;stroke:var(--coin-edge);stroke-width:2}
+.coin-ico .c3{fill:var(--coin-edge)}
+.xp{display:grid;gap:6px;position:relative;z-index:1}
+.xp-bar{height:14px;border-radius:4px;background:var(--player-track);overflow:hidden}
+.xp-bar i{
+  display:block;height:100%;width:0;background-color:var(--coin);
+  background-image:repeating-linear-gradient(90deg, transparent 0 14px, var(--player-seg) 14px 16px);
+  transition:width .5s ease;
+}
+.xp-meta{display:flex;justify-content:space-between;gap:12px;font-size:15px;flex-wrap:wrap}
+
+/* Encabezados de sección */
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-head h2{font-size:22px;font-weight:800;line-height:1.2;text-wrap:balance}
+.sub{color:var(--muted);font-size:14px}
+.counter{font-size:22px;font-weight:700;display:flex;align-items:center;gap:6px}
+.hint{font-size:13px;color:var(--muted);background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:8px 12px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+
+/* Semana */
+.week{display:grid;gap:8px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{display:grid;justify-items:center;gap:4px;min-width:0}
+.day-n{font-size:14px;font-weight:600}
+.bar{width:100%;max-width:30px;height:40px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);display:flex;align-items:flex-end;overflow:hidden}
+.bar i{display:block;width:100%;background:var(--accent)}
+.bar i.ok{background:var(--good)}
+.day-l{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.day.today .day-l{color:var(--ink)}
+.day.today .bar{border-color:var(--ink)}
+.week-note{font-size:12px;color:var(--muted)}
+
+/* Cofre */
+.chest{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.chest-ico{width:46px;height:46px;flex:none}
+.chest-ico .w{fill:var(--chest)}
+.chest-ico .d{fill:var(--chest-dark)}
+.chest-ico .g{fill:var(--coin)}
+.chest-txt{flex:1 1 180px;min-width:0;display:grid;gap:2px}
+.chest-t{font-weight:800}
+.chest-d{font-size:14px;color:var(--muted)}
+.mini{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin-top:4px}
+.mini i{display:block;height:100%;background:var(--coin)}
+.chest.ready{border-color:var(--coin);background:var(--coin-soft)}
+.chest.ready .chest-d{color:var(--coin-ink)}
+
+/* Misiones */
+.missions{display:grid;gap:8px}
+.mission{display:grid;grid-template-columns:1fr;gap:8px;align-items:center}
+.mission.editing{grid-template-columns:1fr auto}
+.mission-btn{
+  width:100%;display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:12px;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  transition:background .2s ease, border-color .2s ease, transform .1s ease;
+}
+.mission-btn:not(:disabled):active{transform:scale(.99)}
+.box{width:24px;height:24px;border:2px solid var(--line-strong);border-radius:7px;display:grid;place-items:center;transition:background .2s ease,border-color .2s ease}
+.box svg{width:16px;height:16px;opacity:0;transition:opacity .15s ease}
+.box path{fill:none;stroke:var(--on-good);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.m-body{display:grid;gap:3px;min-width:0}
+.m-name{font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.m-reward{display:flex;align-items:center;gap:4px;font-size:17px;font-weight:700;color:var(--coin-ink)}
+.mission-btn.done{background:var(--good-soft);border-color:transparent}
+.mission-btn.done .box{background:var(--good);border-color:var(--good)}
+.mission-btn.done .box svg{opacity:1}
+.mission-btn.done .m-reward{color:var(--good)}
+.mission-btn:disabled{opacity:.75}
+.tag{justify-self:start;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.tag[data-area="cuerpo"]{background:var(--a-cuerpo-soft);color:var(--a-cuerpo)}
+.tag[data-area="mente"]{background:var(--a-mente-soft);color:var(--a-mente)}
+.tag[data-area="descanso"]{background:var(--a-descanso-soft);color:var(--a-descanso)}
+.tag[data-area="aprender"]{background:var(--a-aprender-soft);color:var(--a-aprender)}
+.tag[data-area="plata"]{background:var(--a-plata-soft);color:var(--a-plata)}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+
+/* Botones */
+.btn,.btn-ghost,.btn-coin,.del{border-radius:10px;padding:10px 14px;font-weight:700;line-height:1.2}
+.btn{border:0;background:var(--accent);color:var(--on-accent)}
+.btn-coin{border:0;background:var(--coin);color:var(--coin-btn-ink);box-shadow:inset 0 -3px 0 var(--coin-edge)}
+.btn-ghost{background:transparent;border:1px solid var(--line-strong);color:var(--ink)}
+.del{background:transparent;border:1px solid var(--line);color:var(--danger);padding:10px 12px}
+.btn:disabled,.btn-coin:disabled,.btn-ghost:disabled{opacity:.45}
+.edit-row{display:flex;justify-content:flex-end}
+
+/* Formularios */
+.form{display:grid;gap:10px}
+.form-title{font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.field{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:600;min-width:0}
+.field.grow{flex:1 1 200px}
+.field.narrow{flex:0 1 110px}
+.field input,.field select,.composer textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px;font-weight:500;
+}
+.form-err{font-size:13px;color:var(--danger);min-height:0}
+.form-err:empty{display:none}
+.form .btn{justify-self:start}
+
+/* Tienda */
+.rewards{display:grid;gap:8px}
+.reward{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.r-name{font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.r-price{display:flex;align-items:center;gap:5px;font-size:17px;font-weight:700;color:var(--coin-ink);margin-top:2px}
+.r-act{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.r-short{font-size:13px;color:var(--muted);font-weight:600;text-align:right}
+.r-confirm{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--coin-soft);border-radius:10px;padding:10px 12px}
+.r-confirm p{font-weight:700;color:var(--coin-ink)}
+.r-confirm div{display:flex;gap:8px}
+.history{display:grid;gap:8px}
+.redeemed{display:grid;gap:6px}
+.redeemed li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-top:1px solid var(--line);padding-top:6px}
+.redeemed li:first-child{border-top:0;padding-top:0}
+.redeemed .when{color:var(--muted);flex:none}
+.redeemed .what{min-width:0;overflow-wrap:anywhere}
+
+/* Coach */
+.notice{font-size:14px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.notice.warn{color:var(--danger)}
+.quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.q{display:grid;gap:2px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:border-color .2s ease}
+.q:not(:disabled):hover{border-color:var(--accent)}
+.q:disabled{opacity:.5}
+.q-t{font-weight:800}
+.q-d{font-size:13px;color:var(--muted)}
+.thread{display:grid;gap:10px}
+.msg{max-width:90%;padding:10px 14px;border-radius:14px;min-width:0;overflow-wrap:anywhere}
+.msg.user{justify-self:end;background:var(--accent-soft);border-bottom-right-radius:4px;font-weight:500}
+.msg.coach{justify-self:start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.coach p{margin:0 0 8px}
+.msg.coach p:last-child{margin-bottom:0}
+.msg.coach ul,.msg.coach ol{margin:0 0 8px;padding-left:20px;display:grid;gap:3px}
+.msg.coach .md-h{font-weight:800}
+.msg.thinking{color:var(--muted);font-style:italic}
+.msg-note{font-size:13px;color:var(--danger);font-weight:600}
+.composer{display:grid;gap:8px}
+.composer textarea{resize:vertical;min-height:64px}
+.composer-actions{display:flex;justify-content:flex-end;gap:8px}
+.fine{font-size:12px;color:var(--muted)}
+.store-note{font-size:12px;color:var(--muted);text-align:center}
+
+/* Metas */
+.metas{display:grid;gap:12px}
+.meta{display:grid;gap:12px;padding:16px;min-width:0}
+.meta.complete{border-color:var(--good)}
+.meta-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.chip{font-size:15px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.chip.soon{background:var(--coin-soft);color:var(--coin-ink);border-color:transparent}
+.chip.ok{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.muted{color:var(--muted)}
+.meta-name{display:grid;gap:2px;min-width:0}
+.meta-title{font-size:20px;font-weight:800;line-height:1.2;text-wrap:balance;overflow-wrap:anywhere}
+.meta-why{color:var(--muted);font-size:14px}
+.meta-prog{display:grid;gap:6px}
+.route{display:flex;gap:3px;height:12px}
+.seg{flex:1 1 0;min-width:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s ease}
+.seg.full{border-color:var(--good)}
+.seg.full i{background:var(--good)}
+.meta-prog-row{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;font-size:16px}
+.meta-bonus{display:flex;align-items:center;gap:4px;color:var(--coin-ink);font-weight:700}
+.meta-done{font-weight:700;color:var(--good);background:var(--good-soft);border-radius:10px;padding:10px 12px}
+.next{display:grid;gap:2px;background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.step-btn{width:100%;display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;text-align:left;background:none;border:0;padding:8px 0;border-radius:8px}
+.step-btn .box{width:22px;height:22px}
+.step-btn .box svg{width:14px;height:14px}
+.step-btn.done .box{background:var(--good);border-color:var(--good)}
+.step-btn.done .box svg{opacity:1}
+.s-text{min-width:0;overflow-wrap:anywhere;line-height:1.35}
+.step-btn.done .s-text{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+.s-coins{display:flex;align-items:center;gap:3px;font-size:15px;font-weight:700;color:var(--coin-ink)}
+.step-btn.done .s-coins{color:var(--good)}
+.meta-actions{display:flex;gap:8px;flex-wrap:wrap}
+.plan{display:grid;gap:18px;border-top:1px solid var(--line);padding-top:14px}
+.stage{display:grid;gap:4px}
+.stage-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.stage-head > div{min-width:0}
+.stage-t{font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.stage-c{font-size:16px;flex:none}
+.stage.done .eyebrow{color:var(--good)}
+.stage-note{font-size:14px;color:var(--muted)}
+.steps{display:grid}
+.steps > li + li{border-top:1px solid var(--line)}
+.step-row{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:center}
+.step-row.editing{grid-template-columns:minmax(0,1fr) auto}
+.step-row .del{padding:6px 10px;font-size:13px}
+.steps .empty{padding:6px 0}
+.inline-add{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+.edit-meta,.add-stage{background:var(--surface-2);border-radius:12px;padding:12px}
+.edit-meta .field input,.add-stage .field input,.inline-add .field input{background:var(--surface)}
+.plan-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.del-confirm{display:grid;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.del-confirm p{font-weight:600}
+.del-confirm div{display:flex;gap:8px;flex-wrap:wrap}
+.btn-danger{border:0;border-radius:10px;padding:10px 14px;font-weight:700;line-height:1.2;background:var(--danger);color:var(--on-accent)}
+.draft{display:grid;gap:12px}
+.draft .steps li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px}
+.draft .steps li span:first-child{min-width:0;overflow-wrap:anywhere}
+.draft-actions{display:flex;gap:8px;flex-wrap:wrap}
+.draft-wait{color:var(--muted)}
+.draft-err{color:var(--danger);font-weight:600}
+
+/* Barra de pestañas */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.tabbar-inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{background:none;border:0;padding:10px 4px 12px;display:grid;justify-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--muted)}
+.tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--accent)}
+
+/* Celebraciones */
+.toast{
+  position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom, 0px));z-index:30;
+  transform:translate(-50%, 12px);opacity:0;pointer-events:none;
+  width:max-content;max-width:calc(100vw - 32px);
+  background:var(--toast-bg);color:var(--toast-ink);font-weight:700;font-size:14px;
+  padding:10px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);
+  transition:opacity .2s ease, transform .2s ease;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.big{background:var(--coin);color:var(--coin-btn-ink)}
+.float-coin{position:fixed;z-index:31;pointer-events:none;font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--coin-ink);animation:rise .9s ease-out forwards}
+@keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-44px)}}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+}
+@media (max-width:380px){
+  .quick{grid-template-columns:1fr}
+  .coins{font-size:19px}
+}
+</style>
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<div class="app">
+  <header class="player" aria-label="Tu progreso">
+    <div class="player-top">
+      <div class="avatar num" aria-hidden="true">N</div>
+      <div class="who">
+        <p class="p-name" id="pName">Nani</p>
+        <p class="p-rank num">Nivel <span id="pLevel">1</span> · <span id="pRank">Aprendiz</span></p>
+      </div>
+      <div class="coins" aria-label="Monedas disponibles">
+        <svg class="coin-ico lg" viewBox="0 0 24 24" aria-hidden="true"><circle class="c1" cx="12" cy="12" r="10"/><circle class="c2" cx="12" cy="12" r="6.5"/><rect class="c3" x="11" y="8.5" width="2" height="7" rx="1"/></svg>
+        <span class="num" id="pCoins">0</span>
+      </div>
+    </div>
+    <div class="xp">
+      <div class="xp-bar" id="xpBar" role="progressbar" aria-label="Experiencia para el siguiente nivel" aria-valuemin="0" aria-valuemax="150" aria-valuenow="0"><i id="xpFill"></i></div>
+      <div class="xp-meta num"><span id="xpText">0 / 150 XP</span><span id="pStreak">Racha: 0 días</span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOY -->
+    <section class="view" id="view-hoy" aria-labelledby="h-hoy">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-hoy">Misiones de hoy</h2>
+          <p class="sub" id="todayLabel"></p>
+        </div>
+        <p class="counter num" id="todayCount" aria-label="Misiones cumplidas hoy">0/8</p>
+      </div>
+
+      <div class="card week" aria-label="Tus últimos 7 días">
+        <div class="week-grid" id="week"></div>
+        <p class="week-note">Misiones cumplidas por día. Los días con 3 o más (en verde) suman a tu racha.</p>
+      </div>
+
+      <div class="card chest" id="chest">
+        <svg class="chest-ico" viewBox="0 0 48 48" aria-hidden="true">
+          <rect class="d" x="5" y="20" width="38" height="22" rx="3"/>
+          <rect class="w" x="7" y="22" width="34" height="18" rx="2"/>
+          <path class="d" d="M5 20c0-7 4-12 19-12s19 5 19 12z"/>
+          <path class="w" d="M8 19c0-5 3-9 16-9s16 4 16 9z"/>
+          <rect class="g" x="5" y="18" width="38" height="4"/>
+          <rect class="g" x="20" y="16" width="8" height="12" rx="2"/>
+          <rect class="d" x="23" y="21" width="2" height="4" rx="1"/>
+        </svg>
+        <div class="chest-txt">
+          <p class="chest-t" id="chestTitle">Cofre del día</p>
+          <p class="chest-d" id="chestDesc"></p>
+          <div class="mini" id="chestMini"><i id="chestFill"></i></div>
+        </div>
+        <button type="button" class="btn-coin" id="chestBtn" hidden>Abrir cofre</button>
+      </div>
+
+      <ul class="missions" id="missionList"></ul>
+
+      <div class="edit-row"><button type="button" class="btn-ghost" id="editMissionsBtn">Editar misiones</button></div>
+
+      <form class="card form" id="addMission" hidden novalidate>
+        <p class="form-title">Nueva misión</p>
+        <div class="row">
+          <label class="field grow"><span>Misión</span><input id="mName" maxlength="60" placeholder="Ej: Leer 10 páginas" autocomplete="off"></label>
+        </div>
+        <div class="row">
+          <label class="field grow"><span>Área</span>
+            <select id="mArea">
+              <option value="cuerpo">Cuerpo</option>
+              <option value="mente">Mente</option>
+              <option value="descanso">Descanso</option>
+              <option value="aprender" selected>Aprender</option>
+              <option value="plata">Plata</option>
+            </select>
+          </label>
+          <label class="field narrow"><span>Monedas</span><input id="mCoins" type="number" inputmode="numeric" min="1" max="100" step="1" value="15"></label>
+        </div>
+        <p class="form-err" id="mErr" role="alert"></p>
+        <button class="btn" type="submit">Agregar misión</button>
+      </form>
+
+      <p class="store-note" id="storeNote"></p>
+    </section>
+
+    <!-- METAS -->
+    <section class="view" id="view-metas" aria-labelledby="h-metas" hidden>
+      <div class="sec-head">
+        <div>
+          <h2 id="h-metas">Tus metas</h2>
+          <p class="sub">Las grandes, divididas en etapas. Cada paso te da monedas.</p>
+        </div>
+        <button type="button" class="btn" id="newMetaBtn">Nueva meta</button>
+      </div>
+
+      <form class="card form" id="newMeta" hidden novalidate>
+        <p class="form-title">Nueva meta</p>
+        <label class="field"><span>¿Qué quieres lograr?</span><input id="nmTitle" maxlength="80" placeholder="Ej: Correr una carrera de 10 km" autocomplete="off"></label>
+        <div class="row">
+          <label class="field grow"><span>Fecha (opcional)</span><input id="nmDate" type="date"></label>
+          <label class="field grow"><span>Área</span>
+            <select id="nmArea">
+              <option value="cuerpo">Cuerpo</option>
+              <option value="mente">Mente</option>
+              <option value="descanso">Descanso</option>
+              <option value="aprender" selected>Aprender</option>
+              <option value="plata">Plata</option>
+            </select>
+          </label>
+        </div>
+        <label class="field"><span>¿Cuánto tiempo le puedes dedicar?</span>
+          <select id="nmTime">
+            <option>15 minutos al día</option>
+            <option selected>30 minutos al día</option>
+            <option>1 hora al día</option>
+            <option>Solo los fines de semana</option>
+          </select>
+        </label>
+        <p class="form-err" id="nmErr" role="alert"></p>
+        <div class="row">
+          <button class="btn" type="submit" id="nmAI" disabled>Armar plan con el coach</button>
+          <button class="btn-ghost" type="button" id="nmEmpty">Crearla vacía</button>
+        </div>
+        <p class="fine">El coach te propone etapas y pasos. Lo revisas antes de guardarlo.</p>
+      </form>
+
+      <div class="card draft" id="draft" aria-live="polite" hidden></div>
+
+      <ul class="metas" id="metaList"></ul>
+      <p class="fine">Cada etapa completa te da 25 monedas de bono, y cada meta cumplida, su premio final.</p>
+    </section>
+
+    <!-- TIENDA -->
+    <section class="view" id="view-tienda" aria-labelledby="h-tienda" hidden>
+      <div class="sec-head">
+        <div>
+          <h2 id="h-tienda">Tienda de premios</h2>
+          <p class="sub">Gasta tus monedas en cosas que de verdad disfrutas.</p>
+        </div>
+        <p class="counter num" aria-label="Monedas disponibles">
+          <svg class="coin-ico lg" viewBox="0 0 24 24" aria-hidden="true"><circle class="c1" cx="12" cy="12" r="10"/><circle class="c2" cx="12" cy="12" r="6.5"/><rect class="c3" x="11" y="8.5" width="2" height="7" rx="1"/></svg>
+          <span id="shopCoins">0</span>
+        </p>
+      </div>
+      <p class="hint" id="rewardHint">Estos premios son ejemplos. Cámbialos por los tuyos con «Editar premios».</p>
+      <ul class="rewards" id="rewardList"></ul>
+      <div class="edit-row"><button type="button" class="btn-ghost" id="editRewardsBtn">Editar premios</button></div>
+      <form class="card form" id="addReward" hidden novalidate>
+        <p class="form-title">Nuevo premio</p>
+        <div class="row">
+          <label class="field grow"><span>Premio</span><input id="rName" maxlength="60" placeholder="Ej: Ir a cine" autocomplete="off"></label>
+          <label class="field narrow"><span>Precio</span><input id="rPrice" type="number" inputmode="numeric" min="5" max="2000" step="5" value="50"></label>
+        </div>
+        <p class="form-err" id="rErr" role="alert"></p>
+        <button class="btn" type="submit">Agregar premio</button>
+      </form>
+      <div class="card history">
+        <p class="form-title">Premios canjeados</p>
+        <ul class="redeemed" id="redeemedList"></ul>
+      </div>
+    </section>
+
+    <!-- COACH -->
+    <section class="view" id="view-coach" aria-labelledby="h-coach" hidden>
+      <div class="sec-head">
+        <div>
+          <h2 id="h-coach">Tu coach</h2>
+          <p class="sub">Ve tus misiones de hoy. Pídele un empujón, un reto o una pausa.</p>
+        </div>
+      </div>
+      <p class="notice" id="coachStatus">Conectando con tu coach…</p>
+      <div class="quick" id="quick">
+        <button type="button" class="q" data-q="dia" disabled><span class="q-t">Mensaje del día</span><span class="q-d">Cómo vas y un mini reto</span></button>
+        <button type="button" class="q" data-q="ingles" disabled><span class="q-t">Reto de inglés</span><span class="q-d">3 expresiones y una pregunta</span></button>
+        <button type="button" class="q" data-q="aprender" disabled><span class="q-t">Algo nuevo</span><span class="q-d">Un dato curioso en 3 minutos</span></button>
+        <button type="button" class="q" data-q="meditar" disabled><span class="q-t">Meditación de 5 min</span><span class="q-d">Paso a paso, para empezar</span></button>
+      </div>
+      <div class="thread" id="thread" aria-live="polite" hidden></div>
+      <form class="composer" id="composer" novalidate>
+        <label class="sr" for="askBox">Escríbele a tu coach</label>
+        <textarea id="askBox" rows="2" maxlength="1500" placeholder="Ej: ¿cómo hago para no quedarme en TikTok de noche?" disabled></textarea>
+        <div class="composer-actions">
+          <button type="button" class="btn-ghost" id="stopBtn" hidden>Detener</button>
+          <button type="submit" class="btn" id="sendBtn" disabled>Enviar</button>
+        </div>
+      </form>
+      <p class="fine">El coach usa tu cuenta de Claude. La primera vez te pedirá permiso.</p>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="tabbar-inner" role="tablist">
+    <button class="tab" id="tab-hoy" role="tab" aria-selected="true" aria-controls="view-hoy" data-tab="hoy">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>Hoy
+    </button>
+    <button class="tab" id="tab-metas" role="tab" aria-selected="false" aria-controls="view-metas" data-tab="metas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20 10 9l3.5 5 2-3L21 20z"/><path d="M10 9V3.5l4.5 1.7L10 7"/></svg>Metas
+    </button>
+    <button class="tab" id="tab-tienda" role="tab" aria-selected="false" aria-controls="view-tienda" data-tab="tienda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v9h14v-9"/><path d="M12 8C10.5 5 7 4.5 7 7s3 1 5 1zm0 0c1.5-3 5-3.5 5-1s-3 1-5 1z"/></svg>Tienda
+    </button>
+    <button class="tab" id="tab-coach" role="tab" aria-selected="false" aria-controls="view-coach" data-tab="coach">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-7l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M8.5 10.5h7"/></svg>Coach
+    </button>
+  </div>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Datos base (ejemplos editables) ---------- */
+var AREAS = {cuerpo:"Cuerpo", mente:"Mente", descanso:"Descanso", aprender:"Aprender", plata:"Plata"};
+var RANKS = ["Aprendiz","Constante","Enfocada","Disciplinada","Imparable","Leyenda"];
+var STREAK_MIN = 3;
+var CHEST_MIN = 5;
+var LS_STATE = "nivel-nani-estado";
+var LS_TAB = "nivel-nani-tab";
+var LS_OPEN = "nivel-nani-metas-abiertas";
+var STAGE_BONUS = 25;
+
+var DEFAULTS = {
+  v:1,
+  name:"Nani",
+  missions:[
+    {id:"m-ejercicio", name:"Hacer ejercicio 30 min", area:"cuerpo", coins:20},
+    {id:"m-madrugar", name:"Levantarme antes de las 6:30", area:"descanso", coins:10},
+    {id:"m-meditar", name:"Meditar 5 minutos", area:"mente", coins:10},
+    {id:"m-ingles", name:"Practicar inglés 15 min", area:"aprender", coins:15},
+    {id:"m-aprender", name:"Aprender algo nuevo", area:"aprender", coins:15},
+    {id:"m-tiktok", name:"Menos de 30 min de TikTok", area:"mente", coins:15},
+    {id:"m-gastos", name:"No gastar en antojos", area:"plata", coins:15},
+    {id:"m-dormir", name:"Dormir antes de las 11 p. m.", area:"descanso", coins:10}
+  ],
+  rewards:[
+    {id:"r-serie", name:"Un capítulo extra de mi serie, sin culpa", price:30},
+    {id:"r-postre", name:"Un postre o antojo que quiera", price:40},
+    {id:"r-manana", name:"Una mañana libre de pendientes", price:120},
+    {id:"r-comer", name:"Salir a comer con alguien", price:150},
+    {id:"r-compra", name:"Comprarme algo de hasta $30.000", price:250},
+    {id:"r-paseo", name:"Un paseo de fin de semana", price:400}
+  ],
+  log:{},
+  chests:{},
+  redeemed:[],
+  metas:[]
+};
+var DEFAULT_REWARD_IDS = DEFAULTS.rewards.map(function(r){return r.id;}).join("|");
+
+var PHRASES = {
+  cuerpo:["Tu cuerpo te lo agradece.","Moverse también es quererse.","Una más para la racha."],
+  descanso:["Descansar también es avanzar.","Tu yo de mañana te da las gracias."],
+  mente:["Mente más liviana.","Cabeza en orden.","Le estás ganando al piloto automático."],
+  aprender:["Un poquito más sabia que ayer.","Tu cerebro sumó XP."],
+  plata:["Tu billetera respira.","Esa plata se queda contigo."],
+  otra:["¡Bien hecho!","Una misión menos."]
+};
+
+/* ---------- Utilidades ---------- */
+function $(s){return document.querySelector(s);}
+function el(tag, cls){var e=document.createElement(tag); if(cls) e.className=cls; return e;}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function pad(n){return String(n).padStart(2,"0");}
+function dayKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function todayKey(){return dayKey(new Date());}
+function addDays(d,n){var x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x;}
+function fromKey(k){var p=k.split("-"); return new Date(+p[0], +p[1]-1, +p[2], 12);}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+var fmtLong = new Intl.DateTimeFormat("es-CO",{weekday:"long", day:"numeric", month:"long"});
+var fmtShortF = new Intl.DateTimeFormat("es-CO",{day:"numeric", month:"short"});
+function fmtShort(d){return fmtShortF.format(d).replace(".","");}
+var DAY_L = ["D","L","M","M","J","V","S"];
+var COIN_SVG = '<svg class="coin-ico" viewBox="0 0 24 24" aria-hidden="true"><circle class="c1" cx="12" cy="12" r="10"/><circle class="c2" cx="12" cy="12" r="6.5"/><rect class="c3" x="11" y="8.5" width="2" height="7" rx="1"/></svg>';
+var CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg>';
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Estado ---------- */
+function validMission(m){return m && typeof m.id==="string" && typeof m.name==="string" && Number(m.coins)>0;}
+function validReward(r){return r && typeof r.id==="string" && typeof r.name==="string" && Number(r.price)>0;}
+function normMeta(m){
+  if(!m || typeof m.id!=="string" || typeof m.title!=="string" || !Array.isArray(m.stages)) return null;
+  return {
+    id:m.id, title:m.title,
+    why: typeof m.why==="string" ? m.why : "",
+    area: AREAS[m.area] ? m.area : "aprender",
+    date: (typeof m.date==="string" && /^\d{4}-\d{2}-\d{2}$/.test(m.date)) ? m.date : "",
+    bonus: Math.max(0, Math.round(Number(m.bonus)||0)),
+    stages: m.stages.filter(function(s){ return s && typeof s.id==="string" && typeof s.title==="string"; }).map(function(s){
+      return {
+        id:s.id, title:s.title,
+        note: typeof s.note==="string" ? s.note : "",
+        steps: Array.isArray(s.steps) ? s.steps.filter(function(x){ return x && typeof x.id==="string" && typeof x.text==="string" && Number(x.coins)>0; }).map(function(x){
+          return {id:x.id, text:x.text, coins:Math.round(Number(x.coins)), done: typeof x.done==="string" ? x.done : null};
+        }) : []
+      };
+    })
+  };
+}
+function normalize(s){
+  var d = clone(DEFAULTS);
+  if(!s || typeof s!=="object") return d;
+  return {
+    v:1,
+    name: (typeof s.name==="string" && s.name) ? s.name : d.name,
+    missions: Array.isArray(s.missions) ? s.missions.filter(validMission) : d.missions,
+    rewards: Array.isArray(s.rewards) ? s.rewards.filter(validReward) : d.rewards,
+    log: (s.log && typeof s.log==="object" && !Array.isArray(s.log)) ? s.log : {},
+    chests: (s.chests && typeof s.chests==="object" && !Array.isArray(s.chests)) ? s.chests : {},
+    redeemed: Array.isArray(s.redeemed) ? s.redeemed : [],
+    metas: Array.isArray(s.metas) ? s.metas.map(normMeta).filter(Boolean) : []
+  };
+}
+/* Progreso de Nani al exportar la app (4 nov 2026). Si el navegador ya tiene datos guardados, se usan esos. */
+var INICIO = {"v": 1, "name": "Nani", "missions": [{"area": "cuerpo", "coins": 20, "id": "m-ejercicio", "name": "Hacer ejercicio 30 min"}, {"area": "descanso", "coins": 10, "id": "m-madrugar", "name": "Levantarme antes de las 6:30"}, {"area": "mente", "coins": 10, "id": "m-meditar", "name": "Meditar 5 minutos"}, {"area": "aprender", "coins": 15, "id": "m-ingles", "name": "Practicar inglés 15 min"}, {"area": "aprender", "coins": 15, "id": "m-aprender", "name": "Aprender algo nuevo"}, {"area": "mente", "coins": 15, "id": "m-tiktok", "name": "Menos de 30 min de TikTok"}, {"area": "plata", "coins": 15, "id": "m-gastos", "name": "No gastar en antojos"}, {"area": "descanso", "coins": 10, "id": "m-dormir", "name": "Dormir antes de las 11 p. m."}], "rewards": [{"id": "r-serie", "name": "Un capítulo extra de mi serie, sin culpa", "price": 30}, {"id": "r-postre", "name": "Un postre o antojo que quiera", "price": 40}, {"id": "r-manana", "name": "Una mañana libre de pendientes", "price": 120}, {"id": "r-comer", "name": "Salir a comer con alguien", "price": 150}, {"id": "r-compra", "name": "Comprarme algo de hasta $30.000", "price": 250}, {"id": "r-paseo", "name": "Un paseo de fin de semana", "price": 400}], "metas": [{"area": "cuerpo", "bonus": 300, "date": "2027-01-14", "id": "meta-nevado", "stages": [{"id": "nv-e1", "note": "Lo práctico primero. El ascenso se hace con un guía certificado y avalado por Parques Nacionales.", "steps": [{"coins": 30, "done": null, "id": "nv-1a", "text": "Conseguir el permiso del trabajo con mi tío"}, {"coins": 15, "done": "2026-10-26", "id": "nv-1b", "text": "Elegir fecha (dic–feb o jul–ago suelen estar más despejados)"}, {"coins": 20, "done": "2026-10-26", "id": "nv-1c", "text": "Cotizar con una agencia o un guía certificado"}, {"coins": 20, "done": null, "id": "nv-1d", "text": "Definir cuánto ahorrar cada semana para el viaje"}, {"coins": 20, "done": null, "id": "nv-1e", "text": "Hacerme un chequeo médico general antes de entrenar"}], "title": "Organizar el viaje"}, {"id": "nv-e2", "note": "Cardio 3 o 4 veces por semana, con días de descanso. Caminatas de 5 a 8 km en terreno variado.", "steps": [{"coins": 20, "done": null, "id": "nv-2a", "text": "Caminar 5 km sin parar"}, {"coins": 15, "done": null, "id": "nv-2b", "text": "Completar una semana entrenando 3 días"}, {"coins": 25, "done": null, "id": "nv-2c", "text": "Caminar 8 km por terreno con subidas"}, {"coins": 20, "done": null, "id": "nv-2d", "text": "Subir escaleras 20 minutos seguidos"}, {"coins": 30, "done": null, "id": "nv-2e", "text": "Completar 4 semanas de entrenamiento"}], "title": "Base · semanas 1 a 4"}, {"id": "nv-e3", "note": "Sube a caminatas de 10 a 12 km con peso en el morral. Suma piernas y abdomen 2 veces por semana.", "steps": [{"coins": 30, "done": null, "id": "nv-3a", "text": "Caminar 10 km con 4 kg en el morral"}, {"coins": 15, "done": null, "id": "nv-3b", "text": "Hacer rutina de piernas y abdomen 2 veces en una semana"}, {"coins": 35, "done": null, "id": "nv-3c", "text": "Caminar 12 km con 5 o 6 kg en el morral"}, {"coins": 25, "done": null, "id": "nv-3d", "text": "Subir escaleras 30 minutos con el morral"}], "title": "Fuerza y peso · semanas 5 a 8"}, {"id": "nv-e4", "note": "Caminatas largas de 15 a 18 km. Un glaciar no es buena idea como primera experiencia en altura: antes haz una salida a páramo.", "steps": [{"coins": 35, "done": null, "id": "nv-4a", "text": "Caminar 15 km"}, {"coins": 40, "done": null, "id": "nv-4b", "text": "Hacer una salida de práctica a páramo, por encima de 3.500 m"}, {"coins": 40, "done": null, "id": "nv-4c", "text": "Caminar 18 km con el morral"}], "title": "Resistencia y altura · semanas 9 a 12"}, {"id": "nv-e5", "note": "Ropa en tres capas y nada de algodón. Casco, arnés, crampones y piolet normalmente los pone la agencia: pregúntalo al cotizar.", "steps": [{"coins": 25, "done": null, "id": "nv-5a", "text": "Conseguir botas impermeables de caña media o alta y estrenarlas entrenando"}, {"coins": 20, "done": null, "id": "nv-5b", "text": "Tener las 3 capas: térmica, abrigo y chaqueta impermeable"}, {"coins": 15, "done": null, "id": "nv-5c", "text": "Conseguir guantes impermeables, gorro, buff y gafas con filtro UV"}, {"coins": 15, "done": null, "id": "nv-5d", "text": "Tener morral de 30 a 40 litros, linterna frontal y bastón"}, {"coins": 10, "done": null, "id": "nv-5e", "text": "Comprar bloqueador, bálsamo labial y snacks de energía"}], "title": "Equipo"}, {"id": "nv-e6", "note": "Baja la carga para llegar descansada. En la montaña: paso constante, agua antes de tener sed y, si el soroche empeora, se baja.", "steps": [{"coins": 20, "done": null, "id": "nv-6a", "text": "Hacer solo caminatas suaves de 5 a 10 km"}, {"coins": 15, "done": null, "id": "nv-6b", "text": "Empacar el morral con la lista completa"}, {"coins": 20, "done": null, "id": "nv-6c", "text": "Dormir una noche entre 2.500 y 3.000 m antes de subir"}, {"coins": 50, "done": null, "id": "nv-6d", "text": "¡Llegar al glaciar!"}], "title": "Últimas 2 semanas y ascenso"}], "title": "Subir al Nevado de Santa Isabel", "why": "Llegar al glaciar, a unos 4.950 m, en el Parque Nacional Natural Los Nevados."}, {"area": "aprender", "bonus": 200, "date": "", "id": "meta-ingles", "stages": [{"id": "en-e1", "note": "Antes de estudiar, mide tu nivel para saber qué practicar.", "steps": [{"coins": 20, "done": null, "id": "en-1a", "text": "Hacer un test de nivel gratis (como el EF SET) y anotar el resultado"}, {"coins": 10, "done": null, "id": "en-1b", "text": "Elegir una app o un curso para la práctica diaria"}, {"coins": 15, "done": null, "id": "en-1c", "text": "Poner el celular en inglés durante una semana"}], "title": "Saber dónde estoy · semana 1"}, {"id": "en-e2", "note": "15 minutos al día valen más que 2 horas un domingo. Esto va de la mano con tu misión diaria de inglés.", "steps": [{"coins": 25, "done": null, "id": "en-2a", "text": "Practicar 7 días seguidos"}, {"coins": 20, "done": null, "id": "en-2b", "text": "Aprender 50 palabras nuevas"}, {"coins": 40, "done": null, "id": "en-2c", "text": "Completar 30 días de práctica"}], "title": "Hábito diario · semanas 1 a 4"}, {"id": "en-e3", "note": "Series, música y podcasts. Primero con subtítulos en inglés y después sin ellos.", "steps": [{"coins": 15, "done": null, "id": "en-3a", "text": "Ver un capítulo de una serie con subtítulos en inglés"}, {"coins": 15, "done": null, "id": "en-3b", "text": "Escuchar un episodio de un podcast para principiantes"}, {"coins": 15, "done": null, "id": "en-3c", "text": "Entender completa la letra de una canción en inglés"}, {"coins": 30, "done": null, "id": "en-3d", "text": "Ver un capítulo sin subtítulos y contarle al coach de qué trató"}], "title": "Entrenar el oído · semanas 3 a 8"}, {"id": "en-e4", "note": "Es lo que más da miedo y lo que más te hace avanzar.", "steps": [{"coins": 20, "done": null, "id": "en-4a", "text": "Conversar 10 minutos en inglés con el coach"}, {"coins": 20, "done": null, "id": "en-4b", "text": "Grabarme 1 minuto hablando de mi día y escucharme"}, {"coins": 20, "done": null, "id": "en-4c", "text": "Escribir un texto corto y pedirle al coach que lo corrija"}, {"coins": 35, "done": null, "id": "en-4d", "text": "Hablar 5 minutos en inglés con otra persona"}], "title": "Soltarme a hablar · semanas 6 a 12"}, {"id": "en-e5", "note": "Compara con tu primer resultado para ver cuánto creciste.", "steps": [{"coins": 30, "done": null, "id": "en-5a", "text": "Repetir el test de nivel y comparar"}], "title": "Medir el avance · semana 12"}], "title": "Mejorar mi inglés", "why": "Practicar un poco todos los días y medir cuánto avanzo en 3 meses."}, {"area": "aprender", "bonus": 300, "date": "", "id": "meta-programacion", "stages": [{"id": "pg-e1", "note": "Lo más rápido de aprender y lo que más vas a usar, sobre todo en los proyectos en grupo.", "steps": [{"coins": 10, "done": null, "id": "pg-1a", "text": "Entender qué son un repositorio, un commit y un push"}, {"coins": 20, "done": null, "id": "pg-1b", "text": "Hacer mi primer commit desde la terminal"}, {"coins": 25, "done": null, "id": "pg-1c", "text": "Subir un proyecto mío a GitHub (gastos o repuestos)"}, {"coins": 20, "done": null, "id": "pg-1d", "text": "Crear una rama, hacer cambios y unirla con un merge"}, {"coins": 30, "done": null, "id": "pg-1e", "text": "Trabajar con mi grupo en un repositorio compartido"}], "title": "Git y GitHub · semanas 1 y 2"}, {"id": "pg-e2", "note": "Practica con datos que conozcas, como los repuestos o tus gastos: así todo tiene sentido.", "steps": [{"coins": 15, "done": null, "id": "pg-2a", "text": "Entender tablas, filas, columnas y llave primaria"}, {"coins": 20, "done": null, "id": "pg-2b", "text": "Hacer consultas con SELECT, WHERE y ORDER BY"}, {"coins": 20, "done": null, "id": "pg-2c", "text": "Crear mis propias tablas con CREATE TABLE e INSERT"}, {"coins": 30, "done": null, "id": "pg-2d", "text": "Unir dos tablas con JOIN"}, {"coins": 35, "done": null, "id": "pg-2e", "text": "Diseñar la base de datos de un proyecto mío"}, {"coins": 15, "done": null, "id": "pg-2f", "text": "Explicar en qué se diferencia NoSQL (como MongoDB) de SQL"}], "title": "SQL · semanas 3 a 6"}, {"id": "pg-e3", "note": "Si ya viste Python, mucho te va a sonar: variables, condiciones, ciclos y funciones son la misma idea.", "steps": [{"coins": 20, "done": null, "id": "pg-3a", "text": "Practicar variables, condiciones y ciclos en JavaScript"}, {"coins": 25, "done": null, "id": "pg-3b", "text": "Usar funciones y arreglos con map, filter y find"}, {"coins": 25, "done": null, "id": "pg-3c", "text": "Hacer que un botón cambie algo en una página web"}, {"coins": 20, "done": null, "id": "pg-3d", "text": "Guardar y leer datos con objetos y JSON"}, {"coins": 40, "done": null, "id": "pg-3e", "text": "Programar una mini app propia (tareas o calculadora)"}], "title": "JavaScript · semanas 7 a 12"}, {"id": "pg-e4", "note": "Lo que más enseña, y lo que más sirve después para buscar trabajo, es algo hecho por ti.", "steps": [{"coins": 50, "done": null, "id": "pg-4a", "text": "Hacer un proyecto que use JavaScript y una base de datos"}, {"coins": 25, "done": null, "id": "pg-4b", "text": "Subirlo a GitHub con un README que explique qué hace"}, {"coins": 20, "done": null, "id": "pg-4c", "text": "Mostrárselo a alguien y pedirle su opinión"}], "title": "Proyecto para mostrar · semanas 13 y 14"}], "title": "Aprender Git, SQL y JavaScript", "why": "Tener bases sólidas de programación, una herramienta a la vez y practicando con mis propios proyectos."}], "log": {}, "chests": {"2026-10-26": 35}, "redeemed": []};
+var state = normalize(clone(INICIO));
+var editMissions = false, editRewards = false, confirmId = null;
+
+function countOn(k){var l=state.log[k]; return l ? Object.keys(l).length : 0;}
+function chestNeed(){return Math.min(CHEST_MIN, Math.max(1, state.missions.length));}
+function streak(){
+  var s=0, d=new Date(), t=todayKey();
+  for(var i=0;i<500;i++){
+    var k=dayKey(d);
+    if(countOn(k)>=STREAK_MIN) s++;
+    else if(k!==t) break;
+    d=addDays(d,-1);
+  }
+  return s;
+}
+function stats(){
+  var xp=0, earned=0, spent=0, k, id;
+  for(k in state.log){ var day=state.log[k]; for(id in day){ var c=Number(day[id])||0; xp+=c; earned+=c; } }
+  for(k in state.chests){ if(countOn(k) >= chestNeed()) earned += Number(state.chests[k])||0; }
+  state.metas.forEach(function(m){
+    var total = 0, doneN = 0;
+    m.stages.forEach(function(s){
+      var sd = 0;
+      s.steps.forEach(function(st){ total++; if(st.done){ doneN++; sd++; xp += st.coins; earned += st.coins; } });
+      if(s.steps.length && sd===s.steps.length) earned += STAGE_BONUS;
+    });
+    if(total && doneN===total) earned += m.bonus;
+  });
+  for(var i=0;i<state.redeemed.length;i++){ spent += Number(state.redeemed[i].price)||0; }
+  var level=1, rest=xp, need=150;
+  while(rest>=need){ rest-=need; level++; need=150+50*(level-1); }
+  return {xp:xp, coins:earned-spent, level:level, into:rest, need:need, rank:RANKS[Math.min(level-1, RANKS.length-1)], streak:streak()};
+}
+
+/* ---------- Guardado ---------- */
+var storeMode = "pending"; // pending | db | local
+var dbRef = null, loaded = false, touchedEarly = false;
+var writing = false, dirty = false, saveTimer = null, saveBlocked = false, retriedOnce = false, readOnly = false;
+
+function commit(){
+  if(!loaded) touchedEarly = true;
+  saveBlocked = false;
+  render();
+  if(storeMode==="local"){ try{ localStorage.setItem(LS_STATE, JSON.stringify(state)); }catch(e){} return; }
+  dirty = true;
+  if(storeMode==="db" && loaded) scheduleSave(400);
+}
+function scheduleSave(ms){ clearTimeout(saveTimer); saveTimer = setTimeout(flush, ms); }
+async function flush(){
+  if(writing || !dirty || !dbRef || readOnly || saveBlocked) return;
+  writing = true; dirty = false;
+  var body = clone(state);
+  try{
+    await dbRef.set(body);
+  }catch(e){
+    var code = e && e.code;
+    dirty = true;
+    if(code==="invalid_argument"){ setReadOnly(); }
+    else if(code==="unavailable" && !retriedOnce){ retriedOnce = true; }
+    else { saveBlocked = true; showToast("No se pudo guardar tu progreso. Se intentará con tu próximo cambio."); }
+  }finally{
+    writing = false;
+    if(!dirty) retriedOnce = false;
+    if(dirty && !readOnly && !saveBlocked) scheduleSave(retriedOnce ? 1500+Math.random()*1500 : 400);
+  }
+}
+function setReadOnly(){
+  readOnly = true;
+  $("#storeNote").textContent = "Esta app guarda solo el progreso de su dueña. Puedes mirarla, pero tus cambios no se guardan.";
+}
+function storeNote(){
+  if(readOnly) return;
+  var t = storeMode==="db" ? "Tu progreso se guarda en tu cuenta y lo ves en cualquier dispositivo."
+        : storeMode==="local" ? "Tu progreso se guarda solo en este navegador."
+        : "Cargando tu progreso…";
+  $("#storeNote").textContent = t;
+}
+
+async function initStore(){
+  var db = null;
+  try{ db = (window.claude && window.claude.use) ? await window.claude.use("db") : null; }catch(e){ db = null; }
+  if(db){
+    try{ dbRef = db.doc("juego/estado"); }catch(e){ dbRef = null; }
+  }
+  if(!dbRef){
+    storeMode = "local";
+    if(touchedEarly){ try{ localStorage.setItem(LS_STATE, JSON.stringify(state)); }catch(e){} }
+    else { try{ var raw = localStorage.getItem(LS_STATE); if(raw) state = normalize(JSON.parse(raw)); }catch(e){} }
+    loaded = true; render(); return;
+  }
+  storeMode = "db";
+  storeNote();
+  dbRef.onSnapshot(function(snap){
+    if(!loaded){
+      loaded = true;
+      if(touchedEarly){ dirty = true; scheduleSave(200); }
+      else if(snap.exists){ state = normalize(clone(snap.data())); }
+      render();
+      return;
+    }
+    if(writing || dirty || snap.metadata.hasPendingWrites) return;
+    if(snap.exists){
+      var next = normalize(clone(snap.data()));
+      if(JSON.stringify(next) !== JSON.stringify(state)){ state = next; render(); }
+    }
+  }, function(err){
+    if(err && err.code==="revoked"){ setReadOnly(); }
+  });
+}
+
+/* ---------- Celebraciones ---------- */
+var toastTimer = null;
+function showToast(msg, big){
+  var t = $("#toast");
+  t.textContent = msg;
+  t.classList.toggle("big", !!big);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, big ? 3400 : 2600);
+}
+function floatCoin(rect, text){
+  if(reduceMotion || !rect) return;
+  var f = el("span","float-coin");
+  f.textContent = text;
+  f.style.left = (rect.right - 36) + "px";
+  f.style.top = (rect.top + rect.height/2 - 14) + "px";
+  document.body.appendChild(f);
+  setTimeout(function(){ f.remove(); }, 950);
+}
+
+/* ---------- Acciones ---------- */
+function toggleMission(id, btn){
+  if(readOnly){ showToast("Solo la dueña de la app puede marcar misiones."); return; }
+  var t = todayKey();
+  var m = state.missions.find(function(x){return x.id===id;});
+  if(!m) return;
+  var rect = btn.getBoundingClientRect();
+  var before = stats();
+  if(!state.log[t]) state.log[t] = {};
+  if(state.log[t][id] != null){
+    delete state.log[t][id];
+    if(!Object.keys(state.log[t]).length) delete state.log[t];
+    commit();
+    return;
+  }
+  state.log[t][id] = Number(m.coins);
+  commit();
+  var after = stats();
+  var n = countOn(t);
+  floatCoin(rect, "+" + m.coins);
+  if(after.level > before.level) showToast("¡Subiste a nivel " + after.level + "! Ahora eres " + after.rank + ".", true);
+  else if(n === state.missions.length) showToast("¡Día perfecto! Cumpliste todas tus misiones.", true);
+  else if(n === chestNeed() && !state.chests[t]) showToast("¡Desbloqueaste el cofre del día! Ábrelo arriba.", true);
+  else showToast("+" + m.coins + " monedas · " + pick(PHRASES[m.area] || PHRASES.otra));
+}
+function openChest(){
+  if(readOnly) return;
+  var t = todayKey();
+  if(state.chests[t] || countOn(t) < chestNeed()) return;
+  var amount = 15 + 5*Math.floor(Math.random()*10);
+  state.chests[t] = amount;
+  commit();
+  showToast("¡El cofre tenía +" + amount + " monedas!", true);
+}
+function redeem(id){
+  var r = state.rewards.find(function(x){return x.id===id;});
+  if(!r) return;
+  var st = stats();
+  if(st.coins < r.price) return;
+  state.redeemed.push({id:"c-"+Date.now().toString(36), rewardId:r.id, name:r.name, price:Number(r.price), date:todayKey()});
+  confirmId = null;
+  commit();
+  showToast("¡Disfrútalo! Te lo ganaste.", true);
+}
+
+/* ---------- Render ---------- */
+function render(){
+  renderPlayer();
+  renderToday();
+  renderMetas();
+  renderShop();
+  storeNote();
+}
+function renderPlayer(){
+  var st = stats();
+  $("#pName").textContent = state.name;
+  $("#pLevel").textContent = st.level;
+  $("#pRank").textContent = st.rank;
+  $("#pCoins").textContent = st.coins;
+  $("#shopCoins").textContent = st.coins;
+  $("#xpText").textContent = st.into + " / " + st.need + " XP";
+  $("#xpFill").style.width = Math.round(st.into/st.need*100) + "%";
+  var bar = $("#xpBar"); bar.setAttribute("aria-valuemax", st.need); bar.setAttribute("aria-valuenow", st.into);
+  $("#pStreak").textContent = "Racha: " + st.streak + (st.streak===1 ? " día" : " días");
+}
+function renderToday(){
+  var now = new Date(), t = todayKey();
+  var label = fmtLong.format(now);
+  $("#todayLabel").textContent = label.charAt(0).toUpperCase() + label.slice(1);
+  $("#todayCount").textContent = countOn(t) + "/" + state.missions.length;
+
+  // Semana
+  var wk = $("#week"); wk.textContent = "";
+  var max = Math.max(1, state.missions.length);
+  for(var i=6;i>=0;i--){
+    var d = addDays(now,-i), k = dayKey(d), c = countOn(k);
+    var col = el("div","day" + (i===0 ? " today" : ""));
+    col.setAttribute("aria-label", (i===0 ? "Hoy" : fmtLong.format(d)) + ": " + c + " misiones");
+    var n = el("span","day-n num"); n.textContent = c;
+    var bar = el("span","bar"); var fill = el("i", c>=STREAK_MIN ? "ok" : "");
+    fill.style.height = Math.min(100, Math.round(c/max*100)) + "%";
+    bar.appendChild(fill);
+    var l = el("span","day-l"); l.textContent = i===0 ? "Hoy" : DAY_L[d.getDay()];
+    col.append(n, bar, l);
+    wk.appendChild(col);
+  }
+
+  // Cofre
+  var need = chestNeed(), c2 = countOn(t), opened = state.chests[t];
+  var chest = $("#chest"), btn = $("#chestBtn");
+  chest.classList.toggle("ready", !opened && c2>=need);
+  if(opened){
+    var counts = c2>=need;
+    $("#chestTitle").textContent = "Cofre abierto";
+    $("#chestDesc").textContent = counts ? "Te dio " + opened + " monedas. Mañana hay otro." : "Desmarcaste misiones. Vuelve a cumplir " + need + " para que cuenten sus " + opened + " monedas.";
+    $("#chestMini").hidden = counts;
+    if(!counts) $("#chestFill").style.width = Math.round(c2/need*100) + "%";
+    btn.hidden = true;
+  }else if(c2>=need){
+    $("#chestTitle").textContent = "¡Tu cofre está listo!";
+    $("#chestDesc").textContent = "Ábrelo para ganar monedas sorpresa.";
+    $("#chestMini").hidden = true; btn.hidden = false; btn.disabled = readOnly;
+  }else{
+    $("#chestTitle").textContent = "Cofre del día";
+    $("#chestDesc").textContent = "Cumple " + need + " misiones para abrirlo. Llevas " + c2 + ".";
+    $("#chestMini").hidden = false; $("#chestFill").style.width = Math.round(c2/need*100) + "%";
+    btn.hidden = true;
+  }
+
+  // Misiones
+  var ul = $("#missionList"); ul.textContent = "";
+  var done = state.log[t] || {};
+  if(!state.missions.length){
+    var e = el("li","empty"); e.textContent = "No tienes misiones. Toca «Editar misiones» para agregar la primera."; ul.appendChild(e);
+  }
+  state.missions.forEach(function(m){
+    var li = el("li","mission" + (editMissions ? " editing" : ""));
+    var isDone = done[m.id] != null;
+    var b = el("button","mission-btn" + (isDone ? " done" : ""));
+    b.type = "button";
+    b.setAttribute("role","checkbox");
+    b.setAttribute("aria-checked", String(isDone));
+    b.disabled = editMissions;
+    b.innerHTML = '<span class="box" aria-hidden="true">'+CHECK_SVG+'</span><span class="m-body"><span class="m-name"></span><span class="tag"></span></span><span class="m-reward num">+<span></span>'+COIN_SVG+'</span>';
+    b.querySelector(".m-name").textContent = m.name;
+    var tag = b.querySelector(".tag"); tag.dataset.area = m.area; tag.textContent = AREAS[m.area] || "Otra";
+    b.querySelector(".m-reward span").textContent = m.coins;
+    b.addEventListener("click", function(){ toggleMission(m.id, b); });
+    li.appendChild(b);
+    if(editMissions){
+      var del = el("button","del"); del.type = "button"; del.textContent = "Quitar";
+      del.setAttribute("aria-label","Quitar la misión " + m.name);
+      del.addEventListener("click", function(){ state.missions = state.missions.filter(function(x){return x.id!==m.id;}); commit(); });
+      li.appendChild(del);
+    }
+    ul.appendChild(li);
+  });
+  $("#editMissionsBtn").textContent = editMissions ? "Listo" : "Editar misiones";
+  $("#addMission").hidden = !editMissions;
+}
+function renderShop(){
+  var st = stats();
+  var ids = state.rewards.map(function(r){return r.id;}).join("|");
+  $("#rewardHint").hidden = ids !== DEFAULT_REWARD_IDS;
+  var ul = $("#rewardList"); ul.textContent = "";
+  if(!state.rewards.length){
+    var e = el("li","empty"); e.textContent = "No tienes premios todavía. Toca «Editar premios» para agregar el primero."; ul.appendChild(e);
+  }
+  state.rewards.forEach(function(r){
+    var li = el("li","reward");
+    var info = el("div"); info.style.minWidth = "0";
+    var nm = el("p","r-name"); nm.textContent = r.name;
+    var pr = el("p","r-price num"); pr.innerHTML = COIN_SVG + "<span></span>"; pr.querySelector("span").textContent = r.price;
+    info.append(nm, pr);
+    var act = el("div","r-act");
+    if(editRewards){
+      var del = el("button","del"); del.type = "button"; del.textContent = "Quitar";
+      del.setAttribute("aria-label","Quitar el premio " + r.name);
+      del.addEventListener("click", function(){ state.rewards = state.rewards.filter(function(x){return x.id!==r.id;}); commit(); });
+      act.appendChild(del);
+    }else if(st.coins >= r.price){
+      var b = el("button","btn-coin"); b.type = "button"; b.textContent = "Canjear";
+      b.disabled = readOnly;
+      b.addEventListener("click", function(){ confirmId = r.id; renderShop(); });
+      act.appendChild(b);
+    }else{
+      var s = el("p","r-short"); s.textContent = "Te faltan " + (r.price - st.coins); act.appendChild(s);
+    }
+    li.append(info, act);
+    if(confirmId === r.id && !editRewards){
+      var cf = el("div","r-confirm");
+      var q = el("p"); q.textContent = "¿Canjear por " + r.price + " monedas?";
+      var bx = el("div");
+      var no = el("button","btn-ghost"); no.type = "button"; no.textContent = "Cancelar";
+      no.addEventListener("click", function(){ confirmId = null; renderShop(); });
+      var yes = el("button","btn-coin"); yes.type = "button"; yes.textContent = "Sí, canjear";
+      yes.addEventListener("click", function(){ redeem(r.id); });
+      bx.append(no, yes); cf.append(q, bx); li.appendChild(cf);
+    }
+    ul.appendChild(li);
+  });
+  $("#editRewardsBtn").textContent = editRewards ? "Listo" : "Editar premios";
+  $("#addReward").hidden = !editRewards;
+
+  var hl = $("#redeemedList"); hl.textContent = "";
+  var recent = state.redeemed.slice(-8).reverse();
+  if(!recent.length){
+    var e2 = el("li"); e2.innerHTML = '<span class="what"></span>'; e2.firstChild.textContent = "Todavía no has canjeado nada. Tu primer premio te está esperando."; e2.firstChild.style.color = "var(--muted)"; hl.appendChild(e2);
+  }
+  recent.forEach(function(x){
+    var li = el("li");
+    var w = el("span","what"); w.textContent = x.name + " · " + x.price;
+    var d = el("span","when"); d.textContent = fmtShort(fromKey(x.date));
+    li.append(w, d); hl.appendChild(li);
+  });
+}
+
+/* ---------- Formularios ---------- */
+$("#editMissionsBtn").addEventListener("click", function(){ editMissions = !editMissions; renderToday(); });
+$("#editRewardsBtn").addEventListener("click", function(){ editRewards = !editRewards; confirmId = null; renderShop(); });
+$("#chestBtn").addEventListener("click", openChest);
+$("#addMission").addEventListener("submit", function(e){
+  e.preventDefault();
+  var name = $("#mName").value.trim(), coins = Math.round(Number($("#mCoins").value)), area = $("#mArea").value, err = $("#mErr");
+  if(!name){ err.textContent = "Escribe el nombre de la misión."; return; }
+  if(!(coins>=1 && coins<=100)){ err.textContent = "Las monedas deben estar entre 1 y 100."; return; }
+  err.textContent = "";
+  state.missions.push({id:"m-"+Date.now().toString(36), name:name.slice(0,60), area:area, coins:coins});
+  $("#mName").value = "";
+  commit();
+  showToast("Misión agregada.");
+});
+$("#addReward").addEventListener("submit", function(e){
+  e.preventDefault();
+  var name = $("#rName").value.trim(), price = Math.round(Number($("#rPrice").value)), err = $("#rErr");
+  if(!name){ err.textContent = "Escribe qué premio quieres."; return; }
+  if(!(price>=5 && price<=2000)){ err.textContent = "El precio debe estar entre 5 y 2000 monedas."; return; }
+  err.textContent = "";
+  state.rewards.push({id:"r-"+Date.now().toString(36), name:name.slice(0,60), price:price});
+  state.rewards.sort(function(a,b){return a.price-b.price;});
+  $("#rName").value = "";
+  commit();
+  showToast("Premio agregado a la tienda.");
+});
+
+/* ---------- Pestañas ---------- */
+var TABS = ["hoy","metas","tienda","coach"];
+function setTab(name, noScroll){
+  if(TABS.indexOf(name)<0) name = "hoy";
+  TABS.forEach(function(v){
+    $("#view-"+v).hidden = v!==name;
+    $("#tab-"+v).setAttribute("aria-selected", String(v===name));
+  });
+  try{ localStorage.setItem(LS_TAB, name); }catch(e){}
+  if(!noScroll) window.scrollTo(0,0);
+}
+document.querySelectorAll(".tab").forEach(function(b){ b.addEventListener("click", function(){ setTab(b.dataset.tab); }); });
+
+/* ---------- Metas ---------- */
+var openMetas = {}, editMetaId = null, confirmDelMetaId = null, newMetaOpen = false;
+var draft = null, draftBusy = false, draftCtl = null, draftErr = "", draftTitle = "";
+try{ openMetas = JSON.parse(localStorage.getItem(LS_OPEN) || "{}") || {}; }catch(e){ openMetas = {}; }
+function saveOpen(){ try{ localStorage.setItem(LS_OPEN, JSON.stringify(openMetas)); }catch(e){} }
+function uid(p){ return p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function guard(){ if(readOnly){ showToast("Solo la dueña de la app puede cambiar sus metas."); return true; } return false; }
+function metaInfo(m){
+  var total=0, done=0, next=null, nextStage=-1, stagesDone=0;
+  m.stages.forEach(function(s, i){
+    var sd = 0;
+    s.steps.forEach(function(st){ total++; if(st.done){ done++; sd++; } else if(!next){ next = st; nextStage = i; } });
+    if(s.steps.length && sd===s.steps.length) stagesDone++;
+  });
+  return {total:total, done:done, pct: total ? Math.round(done/total*100) : 0, next:next, nextStage:nextStage, stagesDone:stagesDone, complete: total>0 && done===total};
+}
+function stageComplete(s){ return s.steps.length>0 && s.steps.every(function(x){ return !!x.done; }); }
+function daysLeft(date){ if(!date) return null; return Math.round((fromKey(date) - fromKey(todayKey()))/86400000); }
+function findMeta(id){ return state.metas.find(function(m){ return m.id===id; }); }
+function findStep(m, stepId){
+  for(var i=0;i<m.stages.length;i++){ var s = m.stages[i]; for(var j=0;j<s.steps.length;j++){ if(s.steps[j].id===stepId) return {stage:s, step:s.steps[j]}; } }
+  return null;
+}
+function mkInput(id, type, attrs){ var i = el("input"); i.id = id; i.type = type || "text"; for(var k in attrs) i.setAttribute(k, attrs[k]); return i; }
+function mkField(label, input, cls){ var l = el("label","field" + (cls ? " " + cls : "")); var s = el("span"); s.textContent = label; l.append(s, input); return l; }
+
+function toggleStep(metaId, stepId, btn){
+  if(readOnly){ showToast("Solo la dueña de la app puede marcar pasos."); return; }
+  var m = findMeta(metaId); if(!m) return;
+  var f = findStep(m, stepId); if(!f) return;
+  var rect = btn.getBoundingClientRect();
+  var before = stats(), wasStage = stageComplete(f.stage), wasMeta = metaInfo(m).complete;
+  f.step.done = f.step.done ? null : todayKey();
+  commit();
+  if(!f.step.done) return;
+  var after = stats();
+  floatCoin(rect, "+" + f.step.coins);
+  if(metaInfo(m).complete && !wasMeta) showToast("¡Meta cumplida! " + m.title + " · +" + m.bonus + " monedas", true);
+  else if(after.level > before.level) showToast("¡Subiste a nivel " + after.level + "! Ahora eres " + after.rank + ".", true);
+  else if(stageComplete(f.stage) && !wasStage) showToast("¡Etapa completada! +" + STAGE_BONUS + " monedas de bono.", true);
+  else showToast("+" + f.step.coins + " monedas · Un paso más cerca.");
+}
+function stepButton(m, st){
+  var b = el("button","step-btn" + (st.done ? " done" : ""));
+  b.type = "button";
+  b.setAttribute("role","checkbox");
+  b.setAttribute("aria-checked", String(!!st.done));
+  b.innerHTML = '<span class="box" aria-hidden="true">'+CHECK_SVG+'</span><span class="s-text"></span><span class="s-coins num">+<span></span>'+COIN_SVG+'</span>';
+  b.querySelector(".s-text").textContent = st.text;
+  b.querySelector(".s-coins span").textContent = st.coins;
+  b.addEventListener("click", function(){ toggleStep(m.id, st.id, b); });
+  return b;
+}
+
+function renderMetas(){
+  $("#newMetaBtn").textContent = newMetaOpen ? "Cerrar" : "Nueva meta";
+  $("#newMeta").hidden = !newMetaOpen;
+  var ai = $("#nmAI"); ai.hidden = coachOn===false; ai.disabled = coachOn!==true || draftBusy;
+  renderDraft();
+  var ul = $("#metaList"); ul.textContent = "";
+  if(!state.metas.length){
+    var e = el("li","card empty");
+    e.textContent = "Todavía no tienes metas. Toca «Nueva meta»: el coach te arma un plan por etapas y tú vas marcando pasos.";
+    ul.appendChild(e);
+  }
+  state.metas.forEach(function(m){
+    var info = metaInfo(m), open = !!openMetas[m.id], editing = editMetaId===m.id;
+    var li = el("li","card meta" + (info.complete ? " complete" : ""));
+
+    var head = el("div","meta-head");
+    var tag = el("span","tag"); tag.dataset.area = m.area; tag.textContent = AREAS[m.area] || "Otra";
+    var chip = el("span","chip num"), dl = daysLeft(m.date);
+    if(info.complete){ chip.textContent = "Cumplida"; chip.classList.add("ok"); }
+    else if(dl===null){ chip.textContent = "Sin fecha"; chip.classList.add("muted"); }
+    else if(dl>1){ chip.textContent = "Faltan " + dl + " días"; if(dl<=14) chip.classList.add("soon"); }
+    else if(dl===1){ chip.textContent = "Es mañana"; chip.classList.add("soon"); }
+    else if(dl===0){ chip.textContent = "¡Es hoy!"; chip.classList.add("soon"); }
+    else { chip.textContent = "La fecha ya pasó"; chip.classList.add("muted"); }
+    head.append(tag, chip);
+    li.appendChild(head);
+
+    var nm = el("div","meta-name");
+    var h = el("h3","meta-title"); h.textContent = m.title; nm.appendChild(h);
+    if(m.why){ var w = el("p","meta-why"); w.textContent = m.why; nm.appendChild(w); }
+    li.appendChild(nm);
+
+    var prog = el("div","meta-prog");
+    var route = el("div","route");
+    route.setAttribute("role","img");
+    route.setAttribute("aria-label", info.done + " de " + info.total + " pasos; " + info.stagesDone + " de " + m.stages.length + " etapas completas");
+    m.stages.forEach(function(s){
+      var d = s.steps.filter(function(x){ return x.done; }).length;
+      var seg = el("span","seg" + (stageComplete(s) ? " full" : ""));
+      seg.style.flexGrow = String(Math.max(1, s.steps.length));
+      var fi = el("i"); fi.style.width = (s.steps.length ? Math.round(d/s.steps.length*100) : 0) + "%";
+      seg.appendChild(fi); route.appendChild(seg);
+    });
+    var row = el("div","meta-prog-row num");
+    var a = el("span"); a.textContent = info.done + " de " + info.total + " pasos · " + info.pct + "%";
+    var bz = el("span","meta-bonus"); bz.innerHTML = "Premio final +<span></span>" + COIN_SVG; bz.querySelector("span").textContent = m.bonus;
+    row.append(a, bz);
+    prog.append(route, row);
+    li.appendChild(prog);
+
+    if(info.complete){
+      var c = el("p","meta-done"); c.textContent = "¡Lo lograste! Ganaste las " + m.bonus + " monedas del premio final."; li.appendChild(c);
+    }else if(info.next && !open){
+      var nx = el("div","next");
+      var nl = el("p","eyebrow"); nl.textContent = "Próximo paso · Etapa " + (info.nextStage + 1);
+      nx.append(nl, stepButton(m, info.next));
+      li.appendChild(nx);
+    }else if(!info.total && !open){
+      var hp = el("p","hint"); hp.textContent = "Este plan todavía no tiene pasos. Toca «Ver plan» y luego «Editar plan»."; li.appendChild(hp);
+    }
+
+    var acts = el("div","meta-actions");
+    var tg = el("button","btn-ghost"); tg.type = "button";
+    tg.textContent = open ? "Ocultar plan" : "Ver plan";
+    tg.setAttribute("aria-expanded", String(open));
+    tg.addEventListener("click", function(){
+      openMetas[m.id] = !open;
+      if(open && editMetaId===m.id){ editMetaId = null; confirmDelMetaId = null; }
+      saveOpen(); renderMetas();
+    });
+    var ch = el("button","btn-ghost coach-help"); ch.type = "button"; ch.textContent = "Pedirle ayuda al coach";
+    ch.hidden = coachOn===false; ch.disabled = coachOn!==true || busy;
+    ch.addEventListener("click", function(){ askAboutMeta(m.id); });
+    acts.append(tg, ch);
+    li.appendChild(acts);
+
+    if(open) li.appendChild(renderPlan(m, editing));
+    ul.appendChild(li);
+  });
+}
+
+function renderPlan(m, editing){
+  var plan = el("div","plan");
+  if(editing) plan.appendChild(metaEditForm(m));
+  m.stages.forEach(function(s, i){
+    var sec = el("div","stage" + (stageComplete(s) ? " done" : ""));
+    var sh = el("div","stage-head");
+    var left = el("div");
+    var n = el("p","eyebrow"); n.textContent = "Etapa " + (i+1) + (stageComplete(s) ? " · completada · +" + STAGE_BONUS : "");
+    var t = el("p","stage-t"); t.textContent = s.title;
+    left.append(n, t);
+    var cnt = el("span","stage-c num"); cnt.textContent = s.steps.filter(function(x){ return x.done; }).length + "/" + s.steps.length;
+    sh.append(left, cnt);
+    sec.appendChild(sh);
+    if(s.note){ var nt = el("p","stage-note"); nt.textContent = s.note; sec.appendChild(nt); }
+    var list = el("ul","steps");
+    if(!s.steps.length){ var em = el("li","empty"); em.textContent = "Sin pasos todavía."; list.appendChild(em); }
+    s.steps.forEach(function(st){
+      var r = el("li","step-row" + (editing ? " editing" : ""));
+      r.appendChild(stepButton(m, st));
+      if(editing){
+        var del = el("button","del"); del.type = "button"; del.textContent = "Quitar";
+        del.setAttribute("aria-label","Quitar el paso " + st.text);
+        del.addEventListener("click", function(){ if(guard()) return; s.steps = s.steps.filter(function(x){ return x.id!==st.id; }); commit(); });
+        r.appendChild(del);
+      }
+      list.appendChild(r);
+    });
+    sec.appendChild(list);
+    if(editing){
+      var af = el("form","inline-add"); af.noValidate = true;
+      var ti = mkInput("as-text-" + s.id, "text", {maxlength:"80", placeholder:"Nuevo paso", autocomplete:"off"});
+      var ci = mkInput("as-coins-" + s.id, "number", {min:"1", max:"100", step:"5", inputmode:"numeric"}); ci.value = "15";
+      var sb = el("button","btn"); sb.type = "submit"; sb.textContent = "Agregar";
+      af.append(mkField("Paso", ti, "grow"), mkField("Monedas", ci, "narrow"), sb);
+      af.addEventListener("submit", function(e){
+        e.preventDefault(); if(guard()) return;
+        var tx = ti.value.trim(), co = Math.round(Number(ci.value));
+        if(!tx){ showToast("Escribe el paso."); ti.focus(); return; }
+        if(!(co>=1 && co<=100)){ showToast("Las monedas deben estar entre 1 y 100."); return; }
+        s.steps.push({id:uid("p"), text:tx.slice(0,80), coins:co, done:null});
+        commit();
+        var again = document.getElementById("as-text-" + s.id); if(again) again.focus();
+      });
+      sec.appendChild(af);
+      var rs = el("button","del"); rs.type = "button"; rs.textContent = "Quitar etapa"; rs.style.justifySelf = "start"; rs.style.marginTop = "4px";
+      rs.setAttribute("aria-label","Quitar la etapa " + s.title);
+      rs.addEventListener("click", function(){ if(guard()) return; m.stages = m.stages.filter(function(x){ return x.id!==s.id; }); commit(); });
+      sec.appendChild(rs);
+    }
+    plan.appendChild(sec);
+  });
+  if(editing){
+    plan.appendChild(addStageForm(m));
+    if(confirmDelMetaId===m.id){
+      var cf = el("div","del-confirm");
+      var q = el("p"); q.textContent = "¿Eliminar esta meta y todo su plan? Las monedas que ganaste con sus pasos también se descuentan.";
+      var bx = el("div");
+      var no = el("button","btn-ghost"); no.type = "button"; no.textContent = "Cancelar";
+      no.addEventListener("click", function(){ confirmDelMetaId = null; renderMetas(); });
+      var yes = el("button","btn-danger"); yes.type = "button"; yes.textContent = "Sí, eliminar";
+      yes.addEventListener("click", function(){
+        if(guard()) return;
+        state.metas = state.metas.filter(function(x){ return x.id!==m.id; });
+        delete openMetas[m.id]; saveOpen(); editMetaId = null; confirmDelMetaId = null;
+        commit(); showToast("Meta eliminada.");
+      });
+      bx.append(no, yes); cf.append(q, bx); plan.appendChild(cf);
+    }
+  }
+  var foot = el("div","plan-foot");
+  var eb = el("button","btn-ghost"); eb.type = "button"; eb.textContent = editing ? "Listo" : "Editar plan";
+  eb.addEventListener("click", function(){ editMetaId = editing ? null : m.id; confirmDelMetaId = null; renderMetas(); });
+  foot.appendChild(eb);
+  if(editing && confirmDelMetaId!==m.id){
+    var dm = el("button","del"); dm.type = "button"; dm.textContent = "Eliminar meta";
+    dm.addEventListener("click", function(){ confirmDelMetaId = m.id; renderMetas(); });
+    foot.appendChild(dm);
+  }
+  plan.appendChild(foot);
+  return plan;
+}
+
+function metaEditForm(m){
+  var f = el("form","form edit-meta"); f.noValidate = true;
+  var ti = mkInput("em-title-" + m.id, "text", {maxlength:"80", autocomplete:"off"}); ti.value = m.title;
+  var wi = mkInput("em-why-" + m.id, "text", {maxlength:"200", autocomplete:"off", placeholder:"¿Por qué la quieres lograr?"}); wi.value = m.why;
+  var di = mkInput("em-date-" + m.id, "date", {}); di.value = m.date;
+  var bi = mkInput("em-bonus-" + m.id, "number", {min:"0", max:"1000", step:"10", inputmode:"numeric"}); bi.value = m.bonus;
+  var r1 = el("div","row"); r1.append(mkField("Meta", ti, "grow"));
+  var r2 = el("div","row"); r2.append(mkField("Por qué", wi, "grow"));
+  var r3 = el("div","row"); r3.append(mkField("Fecha", di, "grow"), mkField("Premio final", bi, "narrow"));
+  var sb = el("button","btn"); sb.type = "submit"; sb.textContent = "Guardar cambios";
+  f.append(r1, r2, r3, sb);
+  f.addEventListener("submit", function(e){
+    e.preventDefault(); if(guard()) return;
+    var t = ti.value.trim(), b = Math.round(Number(bi.value));
+    if(!t){ showToast("La meta necesita un nombre."); ti.focus(); return; }
+    if(!(b>=0 && b<=1000)){ showToast("El premio final debe estar entre 0 y 1000 monedas."); return; }
+    m.title = t.slice(0,80); m.why = wi.value.trim().slice(0,200); m.date = di.value || ""; m.bonus = b;
+    commit(); showToast("Meta actualizada.");
+  });
+  return f;
+}
+function addStageForm(m){
+  var f = el("form","form add-stage"); f.noValidate = true;
+  var ti = mkInput("ae-title-" + m.id, "text", {maxlength:"70", autocomplete:"off", placeholder:"Ej: Últimas 2 semanas"});
+  var ni = mkInput("ae-note-" + m.id, "text", {maxlength:"200", autocomplete:"off", placeholder:"Un consejo para esta etapa (opcional)"});
+  var p = el("p","form-title"); p.textContent = "Nueva etapa";
+  var r1 = el("div","row"); r1.append(mkField("Etapa", ti, "grow"));
+  var r2 = el("div","row"); r2.append(mkField("Nota", ni, "grow"));
+  var sb = el("button","btn"); sb.type = "submit"; sb.textContent = "Agregar etapa";
+  f.append(p, r1, r2, sb);
+  f.addEventListener("submit", function(e){
+    e.preventDefault(); if(guard()) return;
+    var t = ti.value.trim();
+    if(!t){ showToast("Escribe el nombre de la etapa."); ti.focus(); return; }
+    m.stages.push({id:uid("e"), title:t.slice(0,70), note:ni.value.trim().slice(0,200), steps:[]});
+    commit(); showToast("Etapa agregada. Ahora ponle pasos.");
+  });
+  return f;
+}
+
+/* Nueva meta: vacía o con plan del coach */
+function resetNewMeta(){ $("#nmTitle").value = ""; $("#nmDate").value = ""; $("#nmErr").textContent = ""; }
+function newMetaTitle(){
+  var t = $("#nmTitle").value.trim();
+  if(!t){ $("#nmErr").textContent = "Escribe qué quieres lograr."; $("#nmTitle").focus(); return ""; }
+  $("#nmErr").textContent = "";
+  return t.slice(0,80);
+}
+function createEmptyMeta(){
+  if(guard()) return;
+  var title = newMetaTitle(); if(!title) return;
+  var m = {id:uid("meta"), title:title, why:"", area:$("#nmArea").value, date:$("#nmDate").value || "", bonus:150, stages:[{id:uid("e"), title:"Primeros pasos", note:"", steps:[]}]};
+  state.metas.push(m);
+  openMetas[m.id] = true; saveOpen(); editMetaId = m.id; newMetaOpen = false; resetNewMeta();
+  commit(); showToast("Meta creada. Agrégale pasos a su plan.");
+}
+function planPrompt(req){
+  var dl = daysLeft(req.date);
+  return [
+    "Arma un plan para una meta personal de " + state.name + ", estudiante en Colombia. Lo va a usar en una app tipo videojuego donde cada paso cumplido le da monedas.",
+    "",
+    "Meta: " + req.title,
+    "Área: " + (AREAS[req.area] || "General"),
+    "Fecha objetivo: " + (req.date && dl!==null && dl>0 ? fmtLong.format(fromKey(req.date)) + " (faltan " + dl + " días)" : "sin fecha definida"),
+    "Tiempo que le puede dedicar: " + req.time,
+    "Hoy es " + fmtLong.format(new Date()) + ".",
+    "",
+    "Reglas:",
+    "- Entre 3 y 6 etapas, en orden. Cada etapa con un título corto (si sirve, con el rango de semanas, ej. \"Base · semanas 1 a 4\") y una nota de una frase con el consejo clave.",
+    "- Entre 2 y 6 pasos por etapa. Cada paso es una acción concreta que se marca una sola vez cuando se cumple, empieza con un verbo y tiene menos de 80 caracteres (ej. \"Caminar 5 km sin parar\", no \"Ser constante\").",
+    "- Ajusta el ritmo al tiempo disponible y a la fecha.",
+    "- Monedas por paso: un entero entre 10 y 50 según el esfuerzo.",
+    "- Premio final (bonus): un entero entre 100 y 400 según lo grande que sea la meta.",
+    "- Si la meta tiene riesgos de salud, dinero o seguridad, incluye un paso sensato para cuidarse.",
+    "- Español colombiano, sencillo y cálido.",
+    "",
+    "Responde solo con un objeto JSON con esta forma:",
+    "{\"title\": \"título corto de la meta\", \"why\": \"una frase sobre qué significa lograrla\", \"bonus\": 200, \"stages\": [{\"title\": \"...\", \"note\": \"...\", \"steps\": [{\"text\": \"...\", \"coins\": 20}]}]}"
+  ].join("\n");
+}
+function cleanPlan(raw, req){
+  if(!raw || typeof raw!=="object" || !Array.isArray(raw.stages)) return null;
+  var stages = raw.stages.slice(0,6).map(function(s){
+    if(!s || typeof s!=="object") return null;
+    var steps = Array.isArray(s.steps) ? s.steps.slice(0,8).map(function(x){
+      var text = typeof x==="string" ? x : (x && typeof x.text==="string" ? x.text : "");
+      text = text.trim().slice(0,90);
+      if(!text) return null;
+      var c = Math.round(Number(x && x.coins)); if(!(c>=5)) c = 15; c = Math.min(60, c);
+      return {id:uid("p"), text:text, coins:c, done:null};
+    }).filter(Boolean) : [];
+    var title = (typeof s.title==="string" ? s.title.trim() : "").slice(0,70);
+    if(!title || !steps.length) return null;
+    return {id:uid("e"), title:title, note:(typeof s.note==="string" ? s.note.trim() : "").slice(0,200), steps:steps};
+  }).filter(Boolean);
+  if(!stages.length) return null;
+  var bonus = Math.round(Number(raw.bonus)); if(!(bonus>=50)) bonus = 150; bonus = Math.min(500, bonus);
+  return {
+    id:uid("meta"),
+    title:(typeof raw.title==="string" && raw.title.trim() ? raw.title.trim() : req.title).slice(0,80),
+    why:(typeof raw.why==="string" ? raw.why.trim() : "").slice(0,200),
+    area:req.area, date:req.date || "", bonus:bonus, stages:stages
+  };
+}
+function parseLoose(text){
+  try{ return JSON.parse(text); }catch(e){}
+  var a = text.indexOf("{"), b = text.lastIndexOf("}");
+  if(a<0 || b<=a) return null;
+  try{ return JSON.parse(text.slice(a, b+1)); }catch(e){ return null; }
+}
+async function genPlan(){
+  if(guard()) return;
+  if(!sampleFn || coachOn!==true || draftBusy) return;
+  var title = newMetaTitle(); if(!title) return;
+  var req = {title:title, date:$("#nmDate").value, time:$("#nmTime").value, area:$("#nmArea").value};
+  draft = null; draftErr = ""; draftTitle = title; draftBusy = true;
+  renderMetas(); renderCoach();
+  draftCtl = new AbortController();
+  try{
+    var opts = {modelTier:"default", cache:false, signal:draftCtl.signal};
+    var raw = typeof sampleFn.json==="function" ? await sampleFn.json(planPrompt(req), opts) : parseLoose((await sampleFn(planPrompt(req), opts)).text);
+    var p = cleanPlan(raw, req);
+    if(p) draft = p; else draftErr = "El plan llegó incompleto. Pide otro.";
+  }catch(e){
+    var code = e && e.code;
+    if(code!=="cancelled") draftErr = errCopy(code);
+    if(HIDE.indexOf(code)>=0) coachOn = false;
+  }finally{
+    draftBusy = false; draftCtl = null;
+    renderMetas(); renderCoach();
+  }
+}
+function renderDraft(){
+  var box = $("#draft");
+  if(!draftBusy && !draft && !draftErr){ box.hidden = true; box.textContent = ""; return; }
+  box.hidden = false; box.textContent = "";
+  var acts = el("div","draft-actions");
+  if(draftBusy){
+    var w = el("p","draft-wait"); w.textContent = "El coach está armando tu plan para «" + draftTitle + "». Puede tardar hasta un minuto.";
+    var st = el("button","btn-ghost"); st.type = "button"; st.textContent = "Detener";
+    st.addEventListener("click", function(){ if(draftCtl) draftCtl.abort(); });
+    acts.appendChild(st); box.append(w, acts); return;
+  }
+  if(draftErr){
+    var er = el("p","draft-err"); er.textContent = draftErr;
+    var again = el("button","btn"); again.type = "button"; again.textContent = "Intentar otra vez";
+    again.addEventListener("click", genPlan);
+    var close = el("button","btn-ghost"); close.type = "button"; close.textContent = "Cerrar";
+    close.addEventListener("click", function(){ draftErr = ""; renderMetas(); });
+    acts.append(again, close); box.append(er, acts); return;
+  }
+  var ey = el("p","eyebrow"); ey.textContent = "Plan propuesto por el coach";
+  var nm = el("div","meta-name");
+  var h = el("h3","meta-title"); h.textContent = draft.title; nm.appendChild(h);
+  if(draft.why){ var wy = el("p","meta-why"); wy.textContent = draft.why; nm.appendChild(wy); }
+  box.append(ey, nm);
+  draft.stages.forEach(function(s, i){
+    var sec = el("div","stage");
+    var n = el("p","eyebrow"); n.textContent = "Etapa " + (i+1);
+    var t = el("p","stage-t"); t.textContent = s.title;
+    sec.append(n, t);
+    if(s.note){ var nt = el("p","stage-note"); nt.textContent = s.note; sec.appendChild(nt); }
+    var ul = el("ul","steps");
+    s.steps.forEach(function(x){
+      var li = el("li");
+      var a = el("span"); a.textContent = x.text;
+      var b = el("span","s-coins num"); b.innerHTML = "+<span></span>" + COIN_SVG; b.querySelector("span").textContent = x.coins;
+      li.append(a, b); ul.appendChild(li);
+    });
+    sec.appendChild(ul); box.appendChild(sec);
+  });
+  var bn = el("p","meta-bonus num"); bn.innerHTML = "Premio final +<span></span>" + COIN_SVG; bn.querySelector("span").textContent = draft.bonus;
+  box.appendChild(bn);
+  var save = el("button","btn"); save.type = "button"; save.textContent = "Guardar meta";
+  save.addEventListener("click", function(){
+    if(guard() || !draft) return;
+    var m = draft; draft = null;
+    state.metas.push(m); openMetas[m.id] = true; saveOpen(); newMetaOpen = false; resetNewMeta();
+    commit(); showToast("¡Meta creada! Ya puedes ir marcando pasos.", true);
+  });
+  var other = el("button","btn-ghost"); other.type = "button"; other.textContent = "Pedir otro plan";
+  other.disabled = coachOn!==true;
+  other.addEventListener("click", function(){ newMetaOpen = true; renderMetas(); genPlan(); });
+  var drop = el("button","btn-ghost"); drop.type = "button"; drop.textContent = "Descartar";
+  drop.addEventListener("click", function(){ draft = null; renderMetas(); });
+  acts.append(save, other, drop);
+  box.appendChild(acts);
+}
+function askAboutMeta(id){
+  var m = findMeta(id); if(!m) return;
+  if(coachOn!==true || busy) return;
+  var lines = m.stages.map(function(s, i){
+    return "Etapa " + (i+1) + ": " + s.title + "\n" + s.steps.map(function(st){ return (st.done ? "[x] " : "[ ] ") + st.text; }).join("\n");
+  }).join("\n\n");
+  var dl = daysLeft(m.date);
+  var prompt = "Ayúdame con mi meta «" + m.title + "»" + (dl!==null && dl>=0 ? " (faltan " + dl + " días)" : "") + ". Este es mi plan, con [x] en lo que ya hice:\n\n" + lines + "\n\nDime qué hago esta semana para avanzar: 2 o 3 acciones concretas. Si ves algo importante que le falte al plan, dímelo en una línea.";
+  setTab("coach");
+  ask(prompt, "Ayuda con mi meta: " + m.title);
+}
+$("#newMetaBtn").addEventListener("click", function(){
+  newMetaOpen = !newMetaOpen; renderMetas();
+  if(newMetaOpen) $("#nmTitle").focus();
+});
+$("#newMeta").addEventListener("submit", function(e){
+  e.preventDefault();
+  if(coachOn===true) genPlan(); else createEmptyMeta();
+});
+$("#nmEmpty").addEventListener("click", createEmptyMeta);
+
+/* ---------- Coach (IA) ---------- */
+var sampleFn = null, coachOn = null, turns = [], ctl = null, busy = false;
+var HIDE = ["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"];
+var QUICK = {
+  dia:{label:"Mensaje del día", prompt:"Dame mi mensaje del día: cómo voy hoy según mi estado y un mini reto concreto para lo que me queda del día."},
+  ingles:{label:"Reto de inglés", prompt:"Dame un reto de inglés de 5 minutos: 3 palabras o expresiones útiles para la vida diaria, cada una con traducción y un ejemplo, y al final una pregunta para que yo responda en inglés. Si no sabes mi nivel, empieza en básico-intermedio y ajústalo según cómo responda. Cuando te responda, corrígeme con cariño y explícame mis errores."},
+  aprender:{label:"Algo nuevo", prompt:"Enséñame algo nuevo e interesante que se lea en menos de 3 minutos: un dato o una idea curiosa (ciencia, historia, dinero, psicología o tecnología), explicado fácil, y cierra con una pregunta para pensar."},
+  meditar:{label:"Meditación de 5 min", prompt:"Guíame en una meditación de 5 minutos para principiantes. Dame los pasos en orden con cuánto dura cada uno (respiración, cuerpo, cierre). Lenguaje tranquilo y sencillo."}
+};
+function errCopy(code){
+  switch(code){
+    case "not_granted": return "No se dio permiso para usar el coach. Puedes activarlo en los permisos de esta app.";
+    case "sampling_disabled": case "not_declared": case "capability_disabled": case "capability_removed":
+      return "El coach no está disponible aquí.";
+    case "rate_limited": return "Muchos mensajes seguidos. Espera un momento y vuelve a intentar.";
+    case "session_expired": return "Tu sesión expiró. Vuelve a iniciar sesión en Claude.";
+    case "refused": return "El coach no pudo responder eso. Prueba preguntando de otra forma.";
+    case "empty_completion": return "El coach no respondió nada. Intenta con otra pregunta.";
+    case "prompt_too_large": return "La conversación está muy larga. Recarga la página para empezar otra.";
+    case "invalid_json": return "El plan llegó con un formato raro. Pide otro.";
+    default: return "Se cortó la respuesta. Intenta de nuevo.";
+  }
+}
+function coachContext(){
+  var st = stats(), t = todayKey(), done = state.log[t] || {}, now = new Date();
+  var hechas = state.missions.filter(function(m){return done[m.id]!=null;}).map(function(m){return m.name;});
+  var pend = state.missions.filter(function(m){return done[m.id]==null;}).map(function(m){return m.name;});
+  var hora = new Intl.DateTimeFormat("es-CO",{hour:"numeric", minute:"2-digit"}).format(now);
+  var semana = [];
+  for(var i=6;i>=0;i--){ var d = addDays(now,-i); semana.push(fmtShort(d) + ": " + countOn(dayKey(d))); }
+  var canjes = state.redeemed.slice(-3).map(function(r){ return r.name + " (" + fmtShort(fromKey(r.date)) + ")"; });
+  var metasTxt = state.metas.map(function(m){
+    var inf = metaInfo(m), dl = daysLeft(m.date);
+    return m.title + " (" + inf.done + "/" + inf.total + " pasos" + (dl!==null ? (dl>=0 ? ", faltan " + dl + " días" : ", la fecha ya pasó") : "") + (inf.next ? "; próximo paso: " + inf.next.text : "; cumplida") + ")";
+  });
+  return [
+    "Eres el coach personal dentro de \"Nivel Nani\", una app tipo videojuego donde " + state.name + " gana monedas y XP por cumplir hábitos y luego canjea las monedas por premios reales. " + state.name + " es estudiante y vive en Colombia.",
+    "Cómo hablas: español colombiano, casual y cálido, como una amiga que quiere verla crecer. Celebra lo que de verdad logró. Si va floja, díselo con honestidad y cariño, sin regañar ni hacerla sentir culpable. Nada de frases vacías de autoayuda.",
+    "Formato: respuestas cortas (unas 120 palabras como máximo), salvo que pida algo más largo como una meditación guiada o un reto de inglés. Texto simple: puedes usar listas con '- ' y **negrita** con moderación. Máximo un emoji.",
+    "No inventes datos sobre ella que no estén aquí. No des consejos médicos.",
+    "",
+    "Estado de hoy (" + fmtLong.format(now) + ", " + hora + "):",
+    "- Misiones cumplidas: " + (hechas.length ? hechas.join("; ") : "ninguna todavía"),
+    "- Misiones pendientes: " + (pend.length ? pend.join("; ") : "ninguna, las cumplió todas"),
+    "- Monedas: " + st.coins + ". Nivel " + st.level + " (" + st.rank + "), " + st.into + "/" + st.need + " XP para el siguiente. Racha: " + st.streak + " días.",
+    "- Premios en su tienda: " + (state.rewards.length ? state.rewards.map(function(r){return r.name+" ("+r.price+")";}).join("; ") : "ninguno"),
+    "- Últimos premios canjeados: " + (canjes.length ? canjes.join("; ") : "ninguno"),
+    "- Metas grandes (con plan por etapas en la pestaña Metas): " + (metasTxt.length ? metasTxt.join("; ") : "ninguna todavía"),
+    "- Misiones cumplidas en los últimos 7 días: " + semana.join(", "),
+    "",
+    "Lo que sigue es tu conversación con ella. Responde a su último mensaje."
+  ].join("\n");
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function inline(s){
+  return s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*(?!\s)([^*]+?)\*(?!\*)/g,"$1<em>$2</em>");
+}
+function md(text){
+  var lines = text.split("\n"), html = "", list = null;
+  for(var i=0;i<lines.length;i++){
+    var line = lines[i].replace(/\s+$/,"");
+    var ul = line.match(/^\s*[-*•]\s+(.*)$/), ol = line.match(/^\s*\d+[.)]\s+(.*)$/);
+    if(ul || ol){
+      var type = ul ? "ul" : "ol";
+      if(list !== type){ if(list) html += "</"+list+">"; html += "<"+type+">"; list = type; }
+      html += "<li>" + inline(esc(ul ? ul[1] : ol[1])) + "</li>";
+      continue;
+    }
+    if(list){ html += "</"+list+">"; list = null; }
+    if(!line.trim()) continue;
+    var h = line.match(/^#{1,4}\s+(.*)$/);
+    if(h){ html += '<p class="md-h">' + inline(esc(h[1])) + "</p>"; continue; }
+    html += "<p>" + inline(esc(line)) + "</p>";
+  }
+  if(list) html += "</"+list+">";
+  return html;
+}
+function renderChat(){
+  var th = $("#thread"); th.textContent = "";
+  th.hidden = !turns.length;
+  turns.forEach(function(t){
+    var d = el("div","msg " + (t.role==="user" ? "user" : "coach"));
+    if(t.role==="user"){ d.textContent = t.label; }
+    else{
+      if(t.pending){ d.classList.add("thinking"); d.textContent = "Pensando…"; }
+      else if(t.content){ d.innerHTML = md(t.content); }
+      if(t.note){ var n = el("p","msg-note"); n.textContent = t.note; d.appendChild(n); }
+    }
+    th.appendChild(d);
+  });
+}
+function renderCoach(){
+  var status = $("#coachStatus");
+  var ready = coachOn === true;
+  if(coachOn === null){ status.hidden = false; status.className = "notice"; status.textContent = "Conectando con tu coach…"; }
+  else if(!ready){ status.hidden = false; status.className = "notice warn"; status.textContent = "El coach todavía no está conectado en esta versión (mira el README). Tus misiones, metas y premios funcionan igual."; }
+  else { status.hidden = true; }
+  document.querySelectorAll(".q").forEach(function(b){ b.disabled = !ready || busy; });
+  $("#askBox").disabled = !ready;
+  $("#sendBtn").disabled = !ready || busy;
+  $("#stopBtn").hidden = !busy;
+  document.querySelectorAll(".coach-help").forEach(function(b){ b.hidden = coachOn===false; b.disabled = !ready || busy; });
+  var ai = $("#nmAI"); ai.hidden = coachOn===false; ai.disabled = !ready || draftBusy;
+}
+async function ask(content, label){
+  if(!sampleFn || busy || coachOn!==true) return;
+  turns.push({role:"user", content:content, label:label || content});
+  var reply = {role:"assistant", content:"", pending:true};
+  turns.push(reply);
+  busy = true; renderChat(); renderCoach();
+  var last = $("#thread").lastElementChild; if(last && last.scrollIntoView) last.scrollIntoView({block:"nearest", behavior: reduceMotion ? "auto" : "smooth"});
+  var history = turns.filter(function(t){ return t!==reply && !t.failed && (t.role==="user" || t.content); }).slice(-12);
+  while(history.length && history[0].role!=="user") history.shift();
+  var msgs = [{role:"user", content:coachContext()}].concat(history.map(function(t){ return {role:t.role, content:t.content}; }));
+  ctl = new AbortController();
+  try{
+    var res = await sampleFn(msgs, {
+      modelTier:"quick", cache:false, signal:ctl.signal,
+      onText:function(u){ reply.content = u.text; reply.pending = false; renderChat(); }
+    });
+    reply.content = res.text; reply.pending = false;
+    if(res.truncated) reply.note = "Se cortó un poco. Pídele que siga.";
+  }catch(e){
+    var code = e && e.code;
+    reply.pending = false;
+    if(code==="cancelled"){ reply.content = (e && e.text) || ""; reply.note = "Detenido."; }
+    else{
+      reply.content = code==="refused" ? "" : ((e && e.text) || "");
+      reply.note = errCopy(code);
+      if(HIDE.indexOf(code)>=0) coachOn = false;
+    }
+    if(!reply.content) reply.failed = true;
+  }finally{
+    busy = false; ctl = null;
+    renderChat(); renderCoach();
+  }
+}
+document.querySelectorAll(".q").forEach(function(b){
+  b.addEventListener("click", function(){ var q = QUICK[b.dataset.q]; if(q) ask(q.prompt, q.label); });
+});
+$("#composer").addEventListener("submit", function(e){
+  e.preventDefault();
+  var box = $("#askBox"), v = box.value.trim();
+  if(!v || busy) return;
+  box.value = "";
+  ask(v, v);
+});
+$("#askBox").addEventListener("keydown", function(e){
+  var fine = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+  if(e.key==="Enter" && !e.shiftKey && !e.isComposing && fine){ e.preventDefault(); $("#composer").requestSubmit(); }
+});
+$("#stopBtn").addEventListener("click", function(){ if(ctl) ctl.abort(); });
+
+async function initCoach(){
+  try{ sampleFn = (window.claude && window.claude.use) ? await window.claude.use("sample") : null; }catch(e){ sampleFn = null; }
+  coachOn = !!sampleFn;
+  renderCoach();
+}
+
+/* ---------- Arranque ---------- */
+var savedTab = "hoy";
+try{ savedTab = localStorage.getItem(LS_TAB) || "hoy"; }catch(e){}
+setTab(savedTab, true);
+render();
+renderCoach();
+initStore();
+initCoach();
+})();
+</script>
+<script>
+// Registra el service worker para que la app se pueda instalar y abra sin internet.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
